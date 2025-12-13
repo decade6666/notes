@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "ImmortalWrt(Openwrt)/1.接口配置.md",
+                "file": "ImmortalWrt(OpenWrt)/2.PassWall+双Adugard Home.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "1.接口配置"
+              "title": "2.PassWall+双Adugard Home"
             }
           }
         ]
@@ -123,13 +123,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "ImmortalWrt(Openwrt)/1.接口配置.md",
+                "file": "ImmortalWrt(OpenWrt)/2.PassWall+双Adugard Home.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "1.接口配置 的大纲"
+              "title": "2.PassWall+双Adugard Home 的大纲"
             }
           },
           {
@@ -163,8 +163,10 @@
   },
   "active": "5aa6150e9f3bc5ee",
   "lastOpenFiles": [
-    "ImmortalWrt(Openwrt)/PassWall+双Adugard Home.md",
-    "ImmortalWrt(Openwrt)/1.接口配置.md",
+    "附件/adguard_clean.tar",
+    "ImmortalWrt(OpenWrt)/1.接口配置.md",
+    "ImmortalWrt(OpenWrt)/2.PassWall+双Adugard Home.md",
+    "ImmortalWrt(Openwrt)/2.passwall.md",
     "未命名.base",
     "附件"
   ]
