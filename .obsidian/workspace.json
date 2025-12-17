@@ -15,7 +15,8 @@
               "state": {
                 "file": "ImmortalWrt(OpenWrt)/2.PassWall+双Adugard Home.md",
                 "mode": "preview",
-                "source": false
+                "source": true,
+                "backlinks": false
               },
               "icon": "lucide-file",
               "title": "2.PassWall+双Adugard Home"
