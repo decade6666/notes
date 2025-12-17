@@ -14,7 +14,7 @@
               "type": "markdown",
               "state": {
                 "file": "ImmortalWrt(OpenWrt)/2.PassWall+双Adugard Home.md",
-                "mode": "source",
+                "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
@@ -123,13 +123,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "ImmortalWrt(OpenWrt)/2.PassWall+双Adugard Home.md",
+                "file": "ImmortalWrt(OpenWrt)/1.接口配置.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "2.PassWall+双Adugard Home 的大纲"
+              "title": "1.接口配置 的大纲"
             }
           },
           {
@@ -140,6 +140,39 @@
               "state": {},
               "icon": "git-pull-request",
               "title": "Source Control"
+            }
+          },
+          {
+            "id": "5769c6cd415e1b42",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "ImmortalWrt(OpenWrt)/2.PassWall+双Adugard Home.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "2.PassWall+双Adugard Home 的反向链接列表"
+            }
+          },
+          {
+            "id": "9e34d28e9ab388ef",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "ImmortalWrt(OpenWrt)/2.PassWall+双Adugard Home.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "2.PassWall+双Adugard Home 的出链列表"
             }
           }
         ],
@@ -163,9 +196,10 @@
   },
   "active": "5aa6150e9f3bc5ee",
   "lastOpenFiles": [
-    "附件/adguard_clean.tar",
     "ImmortalWrt(OpenWrt)/1.接口配置.md",
     "ImmortalWrt(OpenWrt)/2.PassWall+双Adugard Home.md",
+    "README.md",
+    "附件/adguard_clean.tar",
     "ImmortalWrt(Openwrt)/2.passwall.md",
     "未命名.base",
     "附件"
