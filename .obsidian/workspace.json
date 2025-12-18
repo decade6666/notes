@@ -143,7 +143,7 @@
                 "state": {
                   "type": "outline",
                   "state": {
-                    "file": "ImmortalWrt(OpenWrt)/2.PassWall+双Adugard Home.md",
+                    "file": "ImmortalWrt(Openwrt)/2.PassWall+双Adugard Home.md",
                     "followCursor": false,
                     "showSearch": false,
                     "searchQuery": ""
@@ -235,7 +235,7 @@
                 }
               }
             ],
-            "currentTab": 4
+            "currentTab": 2
           },
           {
             "id": "55c621bf5505bbf3",
@@ -268,9 +268,11 @@
   },
   "active": "779d8e4210809a57",
   "lastOpenFiles": [
+    "README.md",
+    "ImmortalWrt(Openwrt)/2.PassWall+双Adugard Home.md",
+    "未命名.canvas",
     "ImmortalWrt(Openwrt)/1.接口配置.md",
     "conflict-files-obsidian-git.md",
-    "ImmortalWrt(Openwrt)/2.PassWall+双Adugard Home.md",
     "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/QTCF.md",
     "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/BMI.md",
     "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/CCR.md",
