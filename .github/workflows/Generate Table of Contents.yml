@@ -1,58 +1,111 @@
 name: Generate Table of Contents
 
 on:
-  workflow_dispatch:  # 手动触发
-schedule:
-- cron: '0 21 * * *'  # 每天 05:00 AM UTC+8（21:00 UTC）
+  workflow_dispatch:
+  schedule:
+    # 每天北京时间 05:00 (UTC 21:00)
+    - cron: '0 21 * * *'
 
-@@ -27,42 +19,50 @@ jobs:
-       README_FILE="README.md"
-       TOC_PLACEHOLDER="<!-- TOC -->"
+jobs:
+  update-toc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-        # Ensure placeholder exists
-       if ! grep -q "$TOC_PLACEHOLDER" "$README_FILE"; then
-          printf "\n%s\n" "$TOC_PLACEHOLDER" >> "$README_FILE"
-       fi
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
 
-        # Build TOC from headings in README (ignore dot-start lines and '附件')
-        TOC_LINES=()
-       while IFS= read -r line; do
-          HEADER_TEXT="$(printf "%s" "$line" | sed -E 's/^(#{1,6})[[:space:]]+(.*)/\2/')"
+      - name: Generate and Update TOC
+        run: |
+          python3 -c "
+          import os
+          import re
 
-          # GitHub-ish anchor (basic)
-          ANCHOR="$(printf "%s" "$HEADER_TEXT" \
-           | tr '[:upper:]' '[:lower:]' \
-            | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')"
+          def get_tree(path, prefix=''):
+              # 1. 严格过滤不需要显示的目录
+              exclude = {'.git', '.github', 'images', 'assets', 'node_modules', '.vscode', 'venv', 'temp'}
+              
+              try:
+                  items = sorted(os.listdir(path))
+              except:
+                  return []
 
-          TOC_LINES+=("- [$HEADER_TEXT](#$ANCHOR)")
-        done < <(grep -E '^(#{1,6})[[:space:]]+' "$README_FILE" | grep -vE '^\.\S+|附件')
+              # 筛选：是目录或者是以 .md 结尾的文件（排除 README.md）
+              valid_items = []
+              for item in items:
+                  if item in exclude or item.startswith('.'):
+                      continue
+                  full_path = os.path.join(path, item)
+                  if os.path.isdir(full_path) or (item.endswith('.md') and item.lower() != 'readme.md'):
+                      valid_items.append(item)
 
-        # Split original content
-        CONTENT_BEFORE_TOC="$(sed -n '/<!-- TOC -->/q;p' "$README_FILE")"
-        CONTENT_AFTER_TOC="$(sed -n '/<!-- TOC -->/,$p' "$README_FILE" | tail -n +2)"
+              tree_lines = []
+              for i, item in enumerate(valid_items):
+                  is_last = (i == len(valid_items) - 1)
+                  # 决定当前行使用的连接符
+                  connector = '└── ' if is_last else '├── '
+                  
+                  full_path = os.path.join(path, item)
+                  if os.path.isdir(full_path):
+                      # 目录项加斜杠显示
+                      tree_lines.append(f'{prefix}{connector}{item}/')
+                      # 计算下一级缩进：如果当前是末尾，后续用空格；否则用竖线
+                      new_prefix = prefix + ('    ' if is_last else '│   ')
+                      tree_lines.extend(get_tree(full_path, new_prefix))
+                  else:
+                      tree_lines.append(f'{prefix}{connector}{item}')
+              return tree_lines
 
-        # Write back (no extra blank lines at EOF)
-       {
-          printf "%s\n" "$CONTENT_BEFORE_TOC"
-          for toc_line in "${TOC_LINES[@]}"; do
-           printf "%s\n" "$toc_line"
-         done
-          printf "%s" "$CONTENT_AFTER_TOC"
-       } > "$README_FILE"
+          # 生成完整的树状文本块
+          tree_data = ['notes/'] + get_tree('.')
+          toc_block = '```\n' + '\n'.join(tree_data) + '\n```'
 
-        # Collapse trailing newlines to exactly ONE newline at EOF (fix "+1 line" issue)
-        perl -0777 -i -pe 's/\n+\z/\n/' "$README_FILE"
+          readme_path = 'README.md'
+          start_marker = '<!-- TOC_START -->'
+          end_marker = '<!-- TOC_END -->'
+          # 构造标准替换块（前后留空行确保 Markdown 渲染正常）
+          replacement = f'\n{start_marker}\n{toc_block}\n{end_marker}\n'
 
-    - name: Commit changes to README.md (only if changed)
-      shell: bash
-      run: |
-        set -euo pipefail
-        if git diff --quiet -- README.md; then
-          echo "README.md unchanged, skip commit."
-          exit 0
-        fi
-        git config user.name "GitHub Actions"
-        git config user.email "actions@github.com"
-        git add README.md
-        git commit -m "Update Table of Contents in README.md"
-        git push
+          if os.path.exists(readme_path):
+              with open(readme_path, 'r', encoding='utf-8') as f:
+                  content = f.read()
+
+              # 使用更健壮的正则表达式，匹配可能存在的重复块或旧块
+              # [\\s\\S]*? 是非贪婪匹配，确保只匹配一对标记
+              pattern = re.compile(rf'{start_marker}[\s\S]*?{end_marker}', re.DOTALL)
+              
+              if pattern.search(content):
+                  # 核心修复：清理掉可能由于手动编辑留下的多余空行，并替换
+                  new_content = pattern.sub(replacement.strip(), content)
+                  # 再次检查是否有重复的标记（防止之前更新失败留下的残余）
+                  if len(re.findall(start_marker, new_content)) > 1:
+                      # 如果还存在多对标记，强制只保留最后一对的内容
+                      parts = re.split(start_marker, new_content)
+                      # 保留第一部分（头部内容）和最后一部分（包含最后一个 TOC 块的内容）
+                      new_content = parts[0] + replacement + re.split(end_marker, parts[-1])[-1]
+              else:
+                  # 如果没找到标记，则在末尾追加
+                  new_content = content.strip() + '\n\n' + replacement
+
+              # 最终清理：确保文件末尾没有过多的连续换行
+              new_content = re.sub(r'\n{3,}', '\n\n', new_content)
+
+              with open(readme_path, 'w', encoding='utf-8') as f:
+                  f.write(new_content.strip() + '\n')
+              print('TOC tree updated successfully.')
+          "
+
+      - name: Commit and Push
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add README.md
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "docs: auto update directory tree [skip ci]"
+            git push
+          fi
