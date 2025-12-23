@@ -4,39 +4,24 @@
     "type": "split",
     "children": [
       {
-        "id": "7ea918de342e0941",
+        "id": "e183e1029f738a3a",
         "type": "tabs",
         "children": [
           {
-            "id": "5aa6150e9f3bc5ee",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/QTCF.md",
-                "mode": "preview",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "QTCF"
-            }
-          },
-          {
-            "id": "779d8e4210809a57",
+            "id": "0927ca417dcb1db3",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
                 "file": "ImmortalWrt(Openwrt)/2.PassWall+双Adugard Home.md",
-                "mode": "source",
+                "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
               "title": "2.PassWall+双Adugard Home"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -100,184 +85,125 @@
     "type": "split",
     "children": [
       {
-        "id": "b502c3307a832346",
-        "type": "split",
+        "id": "dbb3051da695d746",
+        "type": "tabs",
         "children": [
-          {
-            "id": "dbb3051da695d746",
-            "type": "tabs",
-            "dimension": 45.55808656036447,
-            "children": [
-              {
-                "id": "eb8c555636795207",
-                "type": "leaf",
-                "state": {
-                  "type": "tag",
-                  "state": {
-                    "sortOrder": "frequency",
-                    "useHierarchy": false,
-                    "showSearch": false,
-                    "searchQuery": ""
-                  },
-                  "icon": "lucide-tags",
-                  "title": "标签"
-                }
-              },
-              {
-                "id": "ff10bebfc6704a1c",
-                "type": "leaf",
-                "state": {
-                  "type": "all-properties",
-                  "state": {
-                    "sortOrder": "frequency",
-                    "showSearch": false,
-                    "searchQuery": ""
-                  },
-                  "icon": "lucide-archive",
-                  "title": "添加笔记属性"
-                }
-              },
-              {
-                "id": "7ef55ef9b5f9ba28",
-                "type": "leaf",
-                "state": {
-                  "type": "outline",
-                  "state": {
-                    "file": "ImmortalWrt(Openwrt)/2.PassWall+双Adugard Home.md",
-                    "followCursor": false,
-                    "showSearch": false,
-                    "searchQuery": ""
-                  },
-                  "icon": "lucide-list",
-                  "title": "2.PassWall+双Adugard Home 的大纲"
-                }
-              },
-              {
-                "id": "4101ecd599a5af2e",
-                "type": "leaf",
-                "state": {
-                  "type": "markdown",
-                  "state": {
-                    "file": "ImmortalWrt(Openwrt)/2.PassWall+双Adugard Home.md",
-                    "mode": "source",
-                    "source": false
-                  },
-                  "icon": "lucide-file",
-                  "title": "2.PassWall+双Adugard Home"
-                }
-              },
-              {
-                "id": "9a4aa9f2a211fba3",
-                "type": "leaf",
-                "state": {
-                  "type": "localgraph",
-                  "state": {
-                    "file": "ImmortalWrt(Openwrt)/2.PassWall+双Adugard Home.md",
-                    "options": {
-                      "collapse-filter": true,
-                      "search": "",
-                      "localJumps": 1,
-                      "localBacklinks": true,
-                      "localForelinks": true,
-                      "localInterlinks": false,
-                      "showTags": false,
-                      "showAttachments": false,
-                      "hideUnresolved": false,
-                      "collapse-color-groups": true,
-                      "colorGroups": [],
-                      "collapse-display": true,
-                      "showArrow": false,
-                      "textFadeMultiplier": 0,
-                      "nodeSizeMultiplier": 1,
-                      "lineSizeMultiplier": 1,
-                      "collapse-forces": true,
-                      "centerStrength": 0.518713248970312,
-                      "repelStrength": 10,
-                      "linkStrength": 1,
-                      "linkDistance": 250,
-                      "scale": 1,
-                      "close": true
-                    }
-                  },
-                  "icon": "lucide-git-fork",
-                  "title": "2.PassWall+双Adugard Home 的关系图"
-                }
-              },
-              {
-                "id": "bca7779578c56fda",
-                "type": "leaf",
-                "state": {
-                  "type": "backlink",
-                  "state": {
-                    "collapseAll": false,
-                    "extraContext": false,
-                    "sortOrder": "alphabetical",
-                    "showSearch": false,
-                    "searchQuery": "",
-                    "backlinkCollapsed": false,
-                    "unlinkedCollapsed": true
-                  },
-                  "icon": "links-coming-in",
-                  "title": "反向链接"
-                }
-              },
-              {
-                "id": "6bb1fc02543d0ef4",
-                "type": "leaf",
-                "state": {
-                  "type": "outgoing-link",
-                  "state": {
-                    "linksCollapsed": false,
-                    "unlinkedCollapsed": true
-                  },
-                  "icon": "links-going-out",
-                  "title": "出链"
-                }
-              }
-            ],
-            "currentTab": 2
-          },
           {
             "id": "55c621bf5505bbf3",
             "type": "leaf",
-            "dimension": 54.441913439635535,
             "state": {
               "type": "git-view",
               "state": {},
               "icon": "git-pull-request",
               "title": "Source Control"
             }
+          },
+          {
+            "id": "ff10bebfc6704a1c",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "添加笔记属性"
+            }
+          },
+          {
+            "id": "19f8673ca20bb367",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "ImmortalWrt(Openwrt)/2.PassWall+双Adugard Home.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "2.PassWall+双Adugard Home 的反向链接列表"
+            }
+          },
+          {
+            "id": "762750f3d2403857",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "ImmortalWrt(Openwrt)/2.PassWall+双Adugard Home.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "2.PassWall+双Adugard Home 的出链列表"
+            }
+          },
+          {
+            "id": "3784d69c1b8d176a",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "标签"
+            }
+          },
+          {
+            "id": "9a72db2d478181a1",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "ImmortalWrt(Openwrt)/2.PassWall+双Adugard Home.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "2.PassWall+双Adugard Home 的大纲"
+            }
           }
-        ],
-        "direction": "vertical"
+        ]
       }
     ],
     "direction": "horizontal",
-    "width": 716.5
+    "width": 200
   },
   "left-ribbon": {
     "hiddenItems": {
       "switcher:打开快速切换": false,
-      "graph:查看关系图谱": false,
-      "canvas:新建白板": false,
-      "daily-notes:打开/创建今天的日记": false,
-      "templates:插入模板": false,
+      "graph:查看关系图谱": true,
+      "canvas:新建白板": true,
+      "daily-notes:打开/创建今天的日记": true,
+      "templates:插入模板": true,
       "command-palette:打开命令面板": false,
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "779d8e4210809a57",
+  "active": "0927ca417dcb1db3",
   "lastOpenFiles": [
+    "ImmortalWrt(Openwrt)/1.接口配置.md",
     "README.md",
+    "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/AGE.md",
+    "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/QTCF.md",
     "ImmortalWrt(Openwrt)/2.PassWall+双Adugard Home.md",
     "未命名.canvas",
-    "ImmortalWrt(Openwrt)/1.接口配置.md",
     "conflict-files-obsidian-git.md",
-    "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/QTCF.md",
     "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/BMI.md",
     "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/CCR.md",
     "附件/Pasted image 20251215103821.png",
-    "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/AGE.md",
     "附件/Pasted image 20251215095722.png",
     "附件/Pasted image 20251215095448.png",
     "附件/Pasted image 20251215095413.png",
