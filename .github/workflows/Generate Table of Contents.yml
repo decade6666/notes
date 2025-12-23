@@ -1,12 +1,11 @@
 name: Generate Table of Contents
 
 on:
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - 'README.md' # 忽略对README本身的修改，防止死循环
+  # 手动触发
   workflow_dispatch:
+  # 定时触发：每天北京时间 05:00 (UTC 21:00)
+  schedule:
+    - cron: '0 21 * * *'
 
 jobs:
   update-toc:
@@ -14,6 +13,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          # 确保有权限推送代码
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -25,14 +27,15 @@ jobs:
           python3 -c "
           import os
           import re
+          from pathlib import Path
 
           def get_toc(path, level=0):
               items = []
-              # 忽略隐藏目录和特定目录
-              exclude = {'.git', '.github', 'images', 'assets'}
+              # 排除不需要扫描的文件夹
+              exclude = {'.git', '.github', 'images', 'assets', 'node_modules', 'venv'}
               
-              # 获取排序后的文件夹和文件
               try:
+                  # 获取并排序，文件夹排在文件前面，按字母顺序
                   entries = sorted(os.listdir(path))
               except:
                   return ''
@@ -42,13 +45,16 @@ jobs:
                       continue
                   
                   full_path = os.path.join(path, entry)
-                  rel_path = os.path.relpath(full_path, '.')
-                  # 转换 Windows 路径分隔符
-                  url_path = rel_path.replace('\\', '/')
+                  # 核心修复：使用 pathlib 的 as_posix() 避开反斜杠转义报错
+                  rel_path_obj = Path(full_path).relative_to('.')
+                  url_path = rel_path_obj.as_posix()
                   
                   if os.path.isdir(full_path):
                       items.append('  ' * level + f'- [{entry}](./{url_path})')
-                      items.append(get_toc(full_path, level + 1))
+                      # 递归获取子目录
+                      sub_items = get_toc(full_path, level + 1)
+                      if sub_items:
+                          items.append(sub_items)
                   elif entry.endswith('.md') and entry.lower() != 'readme.md':
                       name = entry[:-3]
                       items.append('  ' * level + f'- [{name}](./{url_path})')
@@ -62,20 +68,24 @@ jobs:
               with open(readme_path, 'r', encoding='utf-8') as f:
                   content = f.read()
               
-              # 使用正则替换标记中间的内容
+              # 标记锚点
               start_marker = '<!-- TOC_START -->'
               end_marker = '<!-- TOC_END -->'
               pattern = f'{start_marker}.*?{end_marker}'
               replacement = f'{start_marker}\n\n{toc_content}\n\n{end_marker}'
               
+              # 检查是否存在标记，存在则替换，不存在则报错
               if re.search(pattern, content, re.DOTALL):
                   new_content = re.sub(pattern, replacement, content, flags=re.DOTALL)
                   with open(readme_path, 'w', encoding='utf-8') as f:
                       f.write(new_content)
-                  print('TOC updated successfully.')
+                  print('TOC generated and markers updated.')
               else:
-                  print('Error: Markers not found in README.md')
+                  print('Error: README.md is missing <!-- TOC_START --> or <!-- TOC_END --> markers.')
                   exit(1)
+          else:
+              print('Error: README.md not found.')
+              exit(1)
           "
 
       - name: Commit and Push
@@ -83,5 +93,10 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add README.md
-          git diff --quiet && git diff --staged --quiet || git commit -m "docs: update table of contents"
-          git push
+          # 检查是否有文件变更，防止空 commit 导致报错
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "docs: auto update table of contents"
+            git push
+          fi
