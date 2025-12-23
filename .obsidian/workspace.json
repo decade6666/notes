@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "ImmortalWrt(Openwrt)/2.PassWall+双Adugard Home.md",
+                "file": "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/QTCF.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "2.PassWall+双Adugard Home"
+              "title": "QTCF"
             }
           }
         ]
@@ -118,7 +118,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "ImmortalWrt(Openwrt)/2.PassWall+双Adugard Home.md",
+                "file": "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/QTCF.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -128,7 +128,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "2.PassWall+双Adugard Home 的反向链接列表"
+              "title": "QTCF 的反向链接列表"
             }
           },
           {
@@ -137,12 +137,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "ImmortalWrt(Openwrt)/2.PassWall+双Adugard Home.md",
+                "file": "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/QTCF.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "2.PassWall+双Adugard Home 的出链列表"
+              "title": "QTCF 的出链列表"
             }
           },
           {
@@ -166,13 +166,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "ImmortalWrt(Openwrt)/2.PassWall+双Adugard Home.md",
+                "file": "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/QTCF.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "2.PassWall+双Adugard Home 的大纲"
+              "title": "QTCF 的大纲"
             }
           }
         ]
@@ -194,15 +194,16 @@
   },
   "active": "0927ca417dcb1db3",
   "lastOpenFiles": [
+    "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/CCR.md",
+    "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/QTCF.md",
+    "附件/Pasted image 20251223100509.png",
+    "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/AGE.md",
+    "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/BMI.md",
+    "ImmortalWrt(Openwrt)/2.PassWall+双Adugard Home.md",
     "ImmortalWrt(Openwrt)/1.接口配置.md",
     "README.md",
-    "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/AGE.md",
-    "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/QTCF.md",
-    "ImmortalWrt(Openwrt)/2.PassWall+双Adugard Home.md",
     "未命名.canvas",
     "conflict-files-obsidian-git.md",
-    "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/BMI.md",
-    "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/CCR.md",
     "附件/Pasted image 20251215103821.png",
     "附件/Pasted image 20251215095722.png",
     "附件/Pasted image 20251215095448.png",

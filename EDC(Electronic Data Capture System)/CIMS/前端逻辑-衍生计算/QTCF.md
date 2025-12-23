@@ -13,3 +13,4 @@ else {
 
 setTextValue('[EGORRES1_QTCF]',qtcf);
 ```
+![[Pasted image 20251223100509.png]]
