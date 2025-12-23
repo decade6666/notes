@@ -1,107 +1,58 @@
 name: Generate Table of Contents
 
 on:
-  workflow_dispatch:
-  schedule:
-    # 北京时间 05:00 (UTC 21:00)
-    - cron: '0 21 * * *'
+  workflow_dispatch:  # 手动触发
+schedule:
+- cron: '0 21 * * *'  # 每天 05:00 AM UTC+8（21:00 UTC）
 
-jobs:
-  update-toc:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+@@ -27,42 +19,50 @@ jobs:
+       README_FILE="README.md"
+       TOC_PLACEHOLDER="<!-- TOC -->"
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
+        # Ensure placeholder exists
+       if ! grep -q "$TOC_PLACEHOLDER" "$README_FILE"; then
+          printf "\n%s\n" "$TOC_PLACEHOLDER" >> "$README_FILE"
+       fi
 
-      - name: Generate and Update TOC
-        run: |
-          python3 -c "
-          import os
-          import re
+        # Build TOC from headings in README (ignore dot-start lines and '附件')
+        TOC_LINES=()
+       while IFS= read -r line; do
+          HEADER_TEXT="$(printf "%s" "$line" | sed -E 's/^(#{1,6})[[:space:]]+(.*)/\2/')"
 
-          def get_tree(path, prefix=''):
-              # 排除名单
-              exclude = {'.git', '.github', 'images', 'assets', 'node_modules', '.vscode'}
-              
-              try:
-                  all_items = sorted(os.listdir(path))
-              except:
-                  return []
+          # GitHub-ish anchor (basic)
+          ANCHOR="$(printf "%s" "$HEADER_TEXT" \
+           | tr '[:upper:]' '[:lower:]' \
+            | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')"
 
-              # 筛选有效的目录和 .md 文件
-              valid_items = []
-              for item in all_items:
-                  if item in exclude or item.startswith('.'):
-                      continue
-                  full_path = os.path.join(path, item)
-                  if os.path.isdir(full_path):
-                      valid_items.append(item)
-                  elif item.endswith('.md') and item.lower() != 'readme.md':
-                      valid_items.append(item)
+          TOC_LINES+=("- [$HEADER_TEXT](#$ANCHOR)")
+        done < <(grep -E '^(#{1,6})[[:space:]]+' "$README_FILE" | grep -vE '^\.\S+|附件')
 
-              tree_lines = []
-              for i, item in enumerate(valid_items):
-                  is_last = (i == len(valid_items) - 1)
-                  connector = '└── ' if is_last else '├── '
-                  
-                  full_path = os.path.join(path, item)
-                  if os.path.isdir(full_path):
-                      # 添加目录项
-                      tree_lines.append(f'{prefix}{connector}{item}/')
-                      # 递归处理子目录，增加缩进
-                      new_prefix = prefix + ('    ' if is_last else '│   ')
-                      tree_lines.extend(get_tree(full_path, new_prefix))
-                  else:
-                      # 添加文件项
-                      tree_lines.append(f'{prefix}{connector}{item}')
-              return tree_lines
+        # Split original content
+        CONTENT_BEFORE_TOC="$(sed -n '/<!-- TOC -->/q;p' "$README_FILE")"
+        CONTENT_AFTER_TOC="$(sed -n '/<!-- TOC -->/,$p' "$README_FILE" | tail -n +2)"
 
-          # 1. 生成树状结构
-          print('Generating tree structure...')
-          tree_data = ['notes/'] + get_tree('.')
-          toc_block = '```\n' + '\n'.join(tree_data) + '\n```'
+        # Write back (no extra blank lines at EOF)
+       {
+          printf "%s\n" "$CONTENT_BEFORE_TOC"
+          for toc_line in "${TOC_LINES[@]}"; do
+           printf "%s\n" "$toc_line"
+         done
+          printf "%s" "$CONTENT_AFTER_TOC"
+       } > "$README_FILE"
 
-          # 2. 读取并处理 README.md
-          readme_path = 'README.md'
-          start_marker = '<!-- TOC_START -->'
-          end_marker = '<!-- TOC_END -->'
-          
-          if os.path.exists(readme_path):
-              with open(readme_path, 'r', encoding='utf-8') as f:
-                  content = f.read()
+        # Collapse trailing newlines to exactly ONE newline at EOF (fix "+1 line" issue)
+        perl -0777 -i -pe 's/\n+\z/\n/' "$README_FILE"
 
-              # 清理逻辑：先删掉所有现有的标记对及其内容（解决重复问题）
-              # 使用正则匹配包括标记在内的所有块
-              clean_pattern = re.compile(f'{start_marker}.*?{end_marker}', re.DOTALL)
-              new_content = clean_pattern.sub('', content).strip()
-
-              # 在清理后的内容末尾，重新追加唯一的 TOC 块
-              final_output = new_content + '\n\n' + start_marker + '\n' + toc_block + '\n' + end_marker + '\n'
-
-              with open(readme_path, 'w', encoding='utf-8') as f:
-                  f.write(final_output)
-              print('Successfully updated README.md with new tree.')
-          else:
-              print('README.md not found, creating a new one.')
-              with open(readme_path, 'w', encoding='utf-8') as f:
-                  f.write(f'# Notes\n\n{start_marker}\n{toc_block}\n{end_marker}\n')
-          "
-
-      - name: Commit and Push
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add README.md
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "docs: sync directory tree structure"
-            git push
-          fi
+    - name: Commit changes to README.md (only if changed)
+      shell: bash
+      run: |
+        set -euo pipefail
+        if git diff --quiet -- README.md; then
+          echo "README.md unchanged, skip commit."
+          exit 0
+        fi
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+        git add README.md
+        git commit -m "Update Table of Contents in README.md"
+        git push
