@@ -9,6 +9,9 @@ on:
 jobs:
   update-toc:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -18,29 +21,41 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Generate and Update TOC
+      - name: Create Python Script
         run: |
-          python3 -c "
+          cat << 'EOF' > update_toc.py
           import os
+          import re
 
-          # === 1. 生成目录树逻辑 ===
           def get_tree(path, prefix=''):
-              # 排除名单 (根据你的需求调整)
-              exclude = {'.git', '.github', 'images', 'assets', 'node_modules', '.vscode', 'venv'}
+              # === 配置排除列表 ===
+              # 1. 添加 'update_toc.py' 防止脚本把自己扫进去
+              # 2. 保持之前的 '附件' 等配置
+              exclude = {
+                  '.git', '.github', 'images', 'assets', 'node_modules', 
+                  '.vscode', 'venv', '附件', 'update_toc.py'
+              }
+              
               try:
                   items = sorted(os.listdir(path))
-              except:
+              except Exception as e:
+                  print(f"Error reading {path}: {e}")
                   return []
 
-              # 筛选：有效的文件夹 或 .md 文件 (排除 README.md)
               valid_items = []
               for item in items:
+                  # 排除黑名单和隐藏文件
                   if item in exclude or item.startswith('.'):
                       continue
+                  
                   full_path = os.path.join(path, item)
+                  
+                  # === 筛选逻辑 ===
+                  # 文件夹：保留
                   if os.path.isdir(full_path):
                       valid_items.append(item)
-                  elif item.endswith('.md') and item.lower() != 'readme.md':
+                  # 文件：保留所有非 README.md 的文件 (test.txt 会显示)
+                  elif os.path.isfile(full_path) and item.lower() != 'readme.md':
                       valid_items.append(item)
 
               tree_lines = []
@@ -57,55 +72,60 @@ jobs:
                       tree_lines.append(f'{prefix}{connector}{item}')
               return tree_lines
 
-          # 生成 Tree 字符串
+          # 生成目录数据
+          print("Generating tree...")
           tree_data = ['notes/'] + get_tree('.')
+          
+          # 生成 Markdown 代码块
           toc_content = '```\n' + '\n'.join(tree_data) + '\n```'
-
-          # === 2. 安全更新 README 逻辑 ===
+          
           readme_path = 'README.md'
           start_marker = '<!-- TOC_START -->'
           end_marker = '<!-- TOC_END -->'
           
-          # 构造新的目录块
-          new_toc_block = f'{start_marker}\n{toc_content}\n{end_marker}'
+          # 正则匹配标记
+          regex_start = re.compile(r'<!--\s*TOC_START\s*-->', re.IGNORECASE)
 
           if os.path.exists(readme_path):
               with open(readme_path, 'r', encoding='utf-8') as f:
                   content = f.read()
 
-              # 寻找标记位置
-              if start_marker in content:
-                  # 【关键步骤】
-                  # 找到第一个 <!-- TOC_START -->，只保留它之前的所有内容 (Intro)
-                  # 之后的所有内容（旧目录、重复项、垃圾尾巴）全部丢弃
-                  header_content = content.split(start_marker)[0].rstrip()
+              match = regex_start.search(content)
+              if match:
+                  # 保留头部，替换尾部
+                  header = content[:match.start()].strip()
+                  if not header:
+                      header = '# Notes'
                   
-                  # 重新组装：头部 + 换行 + 新目录块
-                  final_content = f'{header_content}\n\n{new_toc_block}\n'
-                  print('Found existing marker. Truncated junk and updated TOC.')
+                  final_content = f'{header}\n\n{start_marker}\n{toc_content}\n{end_marker}\n'
+                  print('Success: Updated README.')
               else:
-                  # 没找到标记，直接追加
-                  final_content = f'{content.rstrip()}\n\n{new_toc_block}\n'
-                  print('Marker not found. Appended TOC to end.')
+                  # 追加
+                  final_content = content.strip() + f'\n\n{start_marker}\n{toc_content}\n{end_marker}\n'
+                  print('Success: Appended to README.')
 
               with open(readme_path, 'w', encoding='utf-8') as f:
                   f.write(final_content)
           else:
-              # 文件不存在，新建
               with open(readme_path, 'w', encoding='utf-8') as f:
-                  f.write(f'# Notes\n\n{new_toc_block}\n')
-              print('README.md created.')
-          "
+                  f.write(f'# Notes\n\n{start_marker}\n{toc_content}\n{end_marker}\n')
+              print('Success: Created new README.')
+          EOF
+
+      - name: Execute Script
+        run: |
+          python3 update_toc.py
+          # 运行完立即删除脚本，保持环境清洁
+          rm update_toc.py
 
       - name: Commit and Push
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add README.md
-          # 防止空提交报错，且跳过 CI 触发
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "docs: sync directory tree [skip ci]"
+            git commit -m "docs: clean update of directory tree [skip ci]"
             git push
           fi

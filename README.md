@@ -1,12 +1,9 @@
-# notes
-笔记
-
 ## 文件目录
 
 <!-- TOC_START -->
 ```
 notes/
-├── EDC(Electronic Data Capture System)/
+├── EDC/
 │   └── CIMS/
 │       ├── EDit Check/
 │       │   └── 非完整日期时间比较大小.md
@@ -24,8 +21,8 @@ notes/
 │           ├── setSystemSubjectValue_Subject_Note.md
 │           └── setSystemSubjectValue_Subject_Note（第二种关联方式）.md
 ├── ImmortalWrt(Openwrt)/
-    ├── 1.接口配置.md
-    └── 2.PassWall+双Adugard Home.md
-
+│   ├── 1.接口配置.md
+│   └── 2.PassWall+双Adugard Home.md
+└── test.txt
 ```
 <!-- TOC_END -->
