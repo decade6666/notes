@@ -10,11 +10,11 @@ var age;
 
 if(brthdat != '' && icfdat != '') {
 	age = Datepart('yyyy',icfdat).toNum()  - Datepart('yyyy',brthdat).toNum() ;
-	var month = Datepart('MM',icfdat).toNum()  - Datepart('MM',brthdat).toNum() ;
-	var day = Datepart('dd',icfdat).toNum()  - Datepart('dd',brthdat).toNum() ;
+	var month_diff = Datepart('MM',icfdat).toNum()  - Datepart('MM',brthdat).toNum() ;
+	var day_diff = Datepart('dd',icfdat).toNum()  - Datepart('dd',brthdat).toNum() ;
 
 	if (
-		month<0 || (month == 0 && day<0)
+		month_diff<0 || (month_diff == 0 && day_diff<0)
 	) {
 		age--;
     }

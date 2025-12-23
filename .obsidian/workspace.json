@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/QTCF.md",
+                "file": "EDC(Electronic Data Capture System)/CIMS/页面事件/Deriva_AGE.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "QTCF"
+              "title": "Deriva_AGE"
             }
           }
         ]
@@ -118,7 +118,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/QTCF.md",
+                "file": "EDC(Electronic Data Capture System)/CIMS/页面事件/Deriva_AGE.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -128,7 +128,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "QTCF 的反向链接列表"
+              "title": "Deriva_AGE 的反向链接列表"
             }
           },
           {
@@ -137,12 +137,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/QTCF.md",
+                "file": "EDC(Electronic Data Capture System)/CIMS/页面事件/Deriva_AGE.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "QTCF 的出链列表"
+              "title": "Deriva_AGE 的出链列表"
             }
           },
           {
@@ -166,13 +166,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/QTCF.md",
+                "file": "EDC(Electronic Data Capture System)/CIMS/页面事件/Deriva_AGE.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "QTCF 的大纲"
+              "title": "Deriva_AGE 的大纲"
             }
           }
         ]
@@ -194,14 +194,16 @@
   },
   "active": "0927ca417dcb1db3",
   "lastOpenFiles": [
-    "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/CCR.md",
-    "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/QTCF.md",
-    "附件/Pasted image 20251223100509.png",
     "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/AGE.md",
+    "EDC(Electronic Data Capture System)/CIMS/页面事件/Deriva_AGE.md",
     "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/BMI.md",
+    "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/CCR.md",
+    "EDC(Electronic Data Capture System)/CIMS/页面事件",
+    "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/QTCF.md",
+    "README.md",
+    "附件/Pasted image 20251223100509.png",
     "ImmortalWrt(Openwrt)/2.PassWall+双Adugard Home.md",
     "ImmortalWrt(Openwrt)/1.接口配置.md",
-    "README.md",
     "未命名.canvas",
     "conflict-files-obsidian-git.md",
     "附件/Pasted image 20251215103821.png",
