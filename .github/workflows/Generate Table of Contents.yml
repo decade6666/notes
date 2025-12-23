@@ -1,9 +1,9 @@
 name: Generate Table of Contents
 
 on:
-  workflow_dispatch:        # 手动运行
+  workflow_dispatch:
   schedule:
-    - cron: '0 21 * * *'    # UTC 21:00 = UTC+8 05:00
+    - cron: '0 21 * * *'  # UTC 21:00 = UTC+8 05:00
 
 jobs:
   generate-toc:
@@ -21,43 +21,40 @@ jobs:
         README="README.md"
         PLACEHOLDER="<!-- TOC -->"
 
-        # 加上占位符（如果没有）
+        # Add placeholder if missing
         if ! grep -q "$PLACEHOLDER" "$README"; then
-          echo "$PLACEHOLDER" >> "$README"
+          printf "%s\n" "$PLACEHOLDER" >> "$README"
         fi
 
-        # 提取 headings
-        TOC_LINES=()
+        # Build TOC lines
+        TOC=()
         while IFS= read -r H; do
-          HEAD=$(printf "%s" "$H" | sed -E 's/^(#{1,6})[[:space:]]+(.*)/\2/')
-          ANCHOR=$(printf "%s" "$HEAD" \
+          TEXT="$(printf "%s" "$H" | sed -E 's/^(#{1,6})[[:space:]]+(.*)/\2/')"
+          ANCHOR="$(printf "%s" "$TEXT" \
             | tr '[:upper:]' '[:lower:]' \
-            | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')
-          TOC_LINES+=("- [$HEAD](#$ANCHOR)")
-        done < <(grep -E '^(#{1,6})[[:space:]]+' "$README" \
-                  | grep -vE '^\.\S+|附件')
+            | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')"
+          TOC+=("- [$TEXT](#$ANCHOR)")
+        done < <(grep -E '^(#{1,6})[[:space:]]+' "$README" | grep -vE '^\.\S+|附件')
 
-        # 分割文件
-        BEFORE=$(sed -n "/$PLACEHOLDER/ q; p" "$README")
-        AFTER=$(sed -n "/$PLACEHOLDER/,\$p" "$README" | tail -n +2)
+        # Split README sections
+        BEFORE="$(sed -n "/$PLACEHOLDER/ q; p" "$README")"
+        AFTER="$(sed -n "/$PLACEHOLDER/,\$p" "$README" | tail -n +2)"
 
-        # 写回
+        # Rewrite file with exactly ONE trailing newline
         {
           printf "%s\n" "$BEFORE"
-          for LINE in "${TOC_LINES[@]}"; do
-            printf "%s\n" "$LINE"
+          for line in "${TOC[@]}"; do
+            printf "%s\n" "$line"
           done
-          # 必须：EOF 只留一个换行
-          printf "%s" "$AFTER" | sed -e '$!b' -e '/^$/d'
-          printf "\n"
+          printf "%s" "$AFTER" \
+            | sed -e ':a; /.*\n$/!{N; b a}' -e 's/\n\+\z/\n/'
         } > "$README"
 
-    - name: Commit changes if needed
-      shell: bash
+    - name: Commit changes if any
       run: |
         set -euo pipefail
         if git diff --quiet -- README.md; then
-          echo "No changes, skipping commit."
+          echo "No change"
           exit 0
         fi
         git config user.name "GitHub Actions"
