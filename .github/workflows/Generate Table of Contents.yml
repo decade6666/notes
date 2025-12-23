@@ -22,41 +22,36 @@ jobs:
     - name: Generate Table of Contents for README.md
       run: |
         #!/bin/bash
-
-        # Path to the README.md file
         README_FILE="README.md"
 
-        # Create the Table of Contents placeholder if not present
         TOC_PLACEHOLDER="<!-- TOC -->"
         if ! grep -q "$TOC_PLACEHOLDER" "$README_FILE"; then
           echo "$TOC_PLACEHOLDER" >> "$README_FILE"
         fi
 
-        # Generate the Table of Contents
-        TOC=""
+        # 生成 TOC（忽略以 . 开头和 “附件” 文件夹内）
+        TOC_LINES=()
         while IFS= read -r line; do
-          # Ensure only valid headers (and exclude unwanted ones)
-          if [[ "$line" =~ ^#{1,6}\s ]]; then
-            HEADER_TEXT=$(echo "$line" | sed -E 's/^(#{1,6})\s(.*)/\2/')
-            ANCHOR=$(echo "$HEADER_TEXT" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g')
-
-            # Check for duplicates and unwanted headers like 'notes' or '文件目录'
-            if [[ ! "$HEADER_TEXT" =~ "notes" && ! "$HEADER_TEXT" =~ "文件目录" ]]; then
-              # Format the TOC entry with proper indentation and without unnecessary newlines
-              TOC+=$(printf "%*s" $(( ${#line} / 2 )) "")- "[$HEADER_TEXT](#$ANCHOR)"$'\n'
-            fi
-          fi
+          HEADER_TEXT=$(echo "$line" | sed -E 's/^(#{1,6})\s(.*)/\2/')
+          ANCHOR=$(echo "$HEADER_TEXT" \
+            | tr '[:upper:]' '[:lower:]' \
+            | sed -E 's/[^a-z0-9]+/-/g' \
+            | sed -E 's/^-+|-+$//g')
+          TOC_LINES+=("- [$HEADER_TEXT](#$ANCHOR)")
         done < <(grep -E '^(#{1,6})\s' "$README_FILE" | grep -vE '^\.\S+|附件')
 
-        # Extract the part before and after TOC placeholder
+        # 分离 README.md 原内容
         CONTENT_BEFORE_TOC=$(sed -n '/<!-- TOC -->/q;p' "$README_FILE")
         CONTENT_AFTER_TOC=$(sed -n '/<!-- TOC -->/,$p' "$README_FILE" | tail -n +2)
 
-        # Replace the TOC placeholder with the generated TOC
-        NEW_CONTENT="$CONTENT_BEFORE_TOC$'\n'$TOC$'\n'$CONTENT_AFTER_TOC"
-
-        # Write the modified content back to README.md
-        echo "$NEW_CONTENT" > "$README_FILE"
+        # 用 printf 拼接真正的换行
+        {
+          printf "%s\n" "$CONTENT_BEFORE_TOC"
+          for toc_line in "${TOC_LINES[@]}"; do
+            printf "%s\n" "$toc_line"
+          done
+          printf "\n%s\n" "$CONTENT_AFTER_TOC"
+        } > "$README_FILE"
 
     - name: Commit changes to README.md
       uses: EndBug/add-and-commit@v7
