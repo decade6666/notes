@@ -1,15 +1,7 @@
 name: Generate Table of Contents
 
 on:
-  push:
-    paths:
-      - '**/*.md'
-      - README.md
-  pull_request:
-    paths:
-      - '**/*.md'
-      - README.md
-  workflow_dispatch:  # 支持手动触发
+  workflow_dispatch:  # 手动触发
   schedule:
     - cron: '0 21 * * *'  # 每天 05:00 AM UTC+8（21:00 UTC）
 
@@ -27,42 +19,50 @@ jobs:
         README_FILE="README.md"
         TOC_PLACEHOLDER="<!-- TOC -->"
 
-        # 如果 TOC 占位符不存在，则添加
+        # Ensure placeholder exists
         if ! grep -q "$TOC_PLACEHOLDER" "$README_FILE"; then
-          echo "$TOC_PLACEHOLDER" >> "$README_FILE"
+          printf "\n%s\n" "$TOC_PLACEHOLDER" >> "$README_FILE"
         fi
 
-        # 生成 TOC（忽略以 . 开头和 “附件” 文件夹内）
-        TOC=()
+        # Build TOC from headings in README (ignore dot-start lines and '附件')
+        TOC_LINES=()
         while IFS= read -r line; do
-          HEADER_TEXT=$(echo "$line" | sed -E 's/^(#{1,6})\s(.*)/\2/')
-          ANCHOR=$(echo "$HEADER_TEXT" \
+          HEADER_TEXT="$(printf "%s" "$line" | sed -E 's/^(#{1,6})[[:space:]]+(.*)/\2/')"
+
+          # GitHub-ish anchor (basic)
+          ANCHOR="$(printf "%s" "$HEADER_TEXT" \
             | tr '[:upper:]' '[:lower:]' \
-            | sed -E 's/[^a-z0-9]+/-/g' \
-            | sed -E 's/^-+|-+$//g')
-          
-          # 过滤掉不需要的部分，如 'notes' 和 '文件目录'
-          if [[ ! "$HEADER_TEXT" =~ "notes" && ! "$HEADER_TEXT" =~ "文件目录" ]]; then
-            TOC+=("- [$HEADER_TEXT](#$ANCHOR)")
-          fi
-        done < <(grep -E '^(#{1,6})\s' "$README_FILE" | grep -vE '^\.\S+|附件')
+            | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')"
 
-        # 分离 README.md 中的 TOC 部分和其他内容
-        CONTENT_BEFORE_TOC=$(sed -n '/<!-- TOC -->/q;p' "$README_FILE")
-        CONTENT_AFTER_TOC=$(sed -n '/<!-- TOC -->/,$p' "$README_FILE" | tail -n +2)
+          TOC_LINES+=("- [$HEADER_TEXT](#$ANCHOR)")
+        done < <(grep -E '^(#{1,6})[[:space:]]+' "$README_FILE" | grep -vE '^\.\S+|附件')
 
-        # 使用 printf 输出新的 TOC 内容，避免额外的换行符
+        # Split original content
+        CONTENT_BEFORE_TOC="$(sed -n '/<!-- TOC -->/q;p' "$README_FILE")"
+        CONTENT_AFTER_TOC="$(sed -n '/<!-- TOC -->/,$p' "$README_FILE" | tail -n +2)"
+
+        # Write back (no extra blank lines at EOF)
         {
-          printf "%s\n" "$CONTENT_BEFORE_TOC"   # 保留 TOC 占位符前的内容
-          for toc_line in "${TOC[@]}"; do       # 插入新生成的 TOC
+          printf "%s\n" "$CONTENT_BEFORE_TOC"
+          for toc_line in "${TOC_LINES[@]}"; do
             printf "%s\n" "$toc_line"
           done
-          printf "%s\n" "$CONTENT_AFTER_TOC"    # 保留 TOC 占位符后的内容
+          printf "%s" "$CONTENT_AFTER_TOC"
         } > "$README_FILE"
 
-    - name: Commit changes to README.md
-      uses: EndBug/add-and-commit@v7
-      with:
-        author_name: "GitHub Actions"
-        author_email: "actions@github.com"
-        message: "Update Table of Contents in README.md"
+        # Collapse trailing newlines to exactly ONE newline at EOF (fix "+1 line" issue)
+        perl -0777 -i -pe 's/\n+\z/\n/' "$README_FILE"
+
+    - name: Commit changes to README.md (only if changed)
+      shell: bash
+      run: |
+        set -euo pipefail
+        if git diff --quiet -- README.md; then
+          echo "README.md unchanged, skip commit."
+          exit 0
+        fi
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+        git add README.md
+        git commit -m "Update Table of Contents in README.md"
+        git push
