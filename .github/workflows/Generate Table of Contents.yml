@@ -51,6 +51,9 @@ jobs:
             | sed -e ':a; /.*\n$/!{N; b a}' -e 's/\n\+\z/\n/'
         } > "$README"
 
+        # Remove any additional newlines at the end (ensures only ONE newline)
+        perl -0777 -i -pe 's/\n+\z/\n/' "$README"
+
     - name: Commit changes if needed
       run: |
         set -euo pipefail
