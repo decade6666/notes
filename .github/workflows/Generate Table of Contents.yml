@@ -40,9 +40,9 @@ jobs:
           # Remove special characters and spaces for the anchor
           ANCHOR=$(echo "$HEADER_TEXT" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g')
 
-          # Generate TOC entry, ensure no extra URLs or unwanted content
-          if [[ ! "$HEADER_TEXT" =~ "https://" ]]; then
-            echo "- [$HEADER_TEXT](#$ANCHOR)"
+          # Check for duplicates and unwanted headers like 'notes' or '文件目录'
+          if [[ ! "$HEADER_TEXT" =~ "notes" && ! "$HEADER_TEXT" =~ "文件目录" ]]; then
+            echo "$(printf '%*s' $((HEADER_LEVEL - 1)) '')- [$HEADER_TEXT](#$ANCHOR)"
           fi
         done)
 
