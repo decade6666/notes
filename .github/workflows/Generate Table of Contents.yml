@@ -3,7 +3,7 @@ name: Generate Table of Contents
 on:
   workflow_dispatch:
   schedule:
-    # 每天北京时间 05:00 (UTC 21:00)
+    # 北京时间 05:00 (UTC 21:00)
     - cron: '0 21 * * *'
 
 jobs:
@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -24,68 +26,72 @@ jobs:
           import os
           import re
 
-          def generate_tree(path, prefix=''):
-              # 排除不需要显示的文件夹
+          def get_tree(path, prefix=''):
+              # 排除名单
               exclude = {'.git', '.github', 'images', 'assets', 'node_modules', '.vscode'}
               
-              # 获取当前目录下的文件夹和.md文件
-              entries = []
               try:
                   all_items = sorted(os.listdir(path))
               except:
                   return []
 
+              # 筛选有效的目录和 .md 文件
+              valid_items = []
               for item in all_items:
                   if item in exclude or item.startswith('.'):
                       continue
                   full_path = os.path.join(path, item)
                   if os.path.isdir(full_path):
-                      # 检查目录内是否有内容
-                      entries.append(item)
+                      valid_items.append(item)
                   elif item.endswith('.md') and item.lower() != 'readme.md':
-                      entries.append(item)
+                      valid_items.append(item)
 
-              tree = []
-              for i, entry in enumerate(entries):
-                  is_last = (i == len(entries) - 1)
+              tree_lines = []
+              for i, item in enumerate(valid_items):
+                  is_last = (i == len(valid_items) - 1)
                   connector = '└── ' if is_last else '├── '
                   
-                  full_path = os.path.join(path, entry)
+                  full_path = os.path.join(path, item)
                   if os.path.isdir(full_path):
-                      # 添加目录名
-                      tree.append(f'{prefix}{connector}{entry}/')
-                      # 递归处理子目录
+                      # 添加目录项
+                      tree_lines.append(f'{prefix}{connector}{item}/')
+                      # 递归处理子目录，增加缩进
                       new_prefix = prefix + ('    ' if is_last else '│   ')
-                      tree.extend(generate_tree(full_path, new_prefix))
+                      tree_lines.extend(get_tree(full_path, new_prefix))
                   else:
-                      # 添加文件名
-                      tree.append(f'{prefix}{connector}{entry}')
-              return tree
+                      # 添加文件项
+                      tree_lines.append(f'{prefix}{connector}{item}')
+              return tree_lines
 
-          # 获取仓库名作为根目录（这里写死为 notes/ 符合你的要求）
-          root_name = 'notes/'
-          tree_lines = [root_name] + generate_tree('.')
-          toc_content = '```\n' + '\n'.join(tree_lines) + '\n```'
+          # 1. 生成树状结构
+          print('Generating tree structure...')
+          tree_data = ['notes/'] + get_tree('.')
+          toc_block = '```\n' + '\n'.join(tree_data) + '\n```'
 
-          # 更新 README
+          # 2. 读取并处理 README.md
           readme_path = 'README.md'
+          start_marker = '<!-- TOC_START -->'
+          end_marker = '<!-- TOC_END -->'
+          
           if os.path.exists(readme_path):
               with open(readme_path, 'r', encoding='utf-8') as f:
                   content = f.read()
-              
-              start_marker = '<!-- TOC_START -->'
-              end_marker = '<!-- TOC_END -->'
-              pattern = f'{start_marker}.*?{end_marker}'
-              replacement = f'{start_marker}\n{toc_content}\n{end_marker}'
-              
-              if re.search(pattern, content, re.DOTALL):
-                  new_content = re.sub(pattern, replacement, content, flags=re.DOTALL)
-                  with open(readme_path, 'w', encoding='utf-8') as f:
-                      f.write(new_content)
-                  print('Tree TOC updated successfully.')
-              else:
-                  print('Error: Markers not found in README.md')
-                  exit(1)
+
+              # 清理逻辑：先删掉所有现有的标记对及其内容（解决重复问题）
+              # 使用正则匹配包括标记在内的所有块
+              clean_pattern = re.compile(f'{start_marker}.*?{end_marker}', re.DOTALL)
+              new_content = clean_pattern.sub('', content).strip()
+
+              # 在清理后的内容末尾，重新追加唯一的 TOC 块
+              final_output = new_content + '\n\n' + start_marker + '\n' + toc_block + '\n' + end_marker + '\n'
+
+              with open(readme_path, 'w', encoding='utf-8') as f:
+                  f.write(final_output)
+              print('Successfully updated README.md with new tree.')
+          else:
+              print('README.md not found, creating a new one.')
+              with open(readme_path, 'w', encoding='utf-8') as f:
+                  f.write(f'# Notes\n\n{start_marker}\n{toc_block}\n{end_marker}\n')
           "
 
       - name: Commit and Push
@@ -96,6 +102,6 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "docs: update directory tree structure"
+            git commit -m "docs: sync directory tree structure"
             git push
           fi
