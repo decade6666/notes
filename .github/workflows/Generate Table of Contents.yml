@@ -30,27 +30,32 @@ jobs:
         fi
 
         # 生成 TOC（忽略以 . 开头和 “附件” 文件夹内）
-        TOC_LINES=()
+        TOC=()
         while IFS= read -r line; do
+          # Get the header text and anchor link
           HEADER_TEXT=$(echo "$line" | sed -E 's/^(#{1,6})\s(.*)/\2/')
           ANCHOR=$(echo "$HEADER_TEXT" \
             | tr '[:upper:]' '[:lower:]' \
             | sed -E 's/[^a-z0-9]+/-/g' \
             | sed -E 's/^-+|-+$//g')
-          TOC_LINES+=("- [$HEADER_TEXT](#$ANCHOR)")
+          
+          # 过滤掉不需要的部分，如 'notes' 和 '文件目录'
+          if [[ ! "$HEADER_TEXT" =~ "notes" && ! "$HEADER_TEXT" =~ "文件目录" ]]; then
+            TOC+=("- [$HEADER_TEXT](#$ANCHOR)")
+          fi
         done < <(grep -E '^(#{1,6})\s' "$README_FILE" | grep -vE '^\.\S+|附件')
 
-        # 分离 README.md 原内容
+        # 分离 README.md 中的 TOC 部分和其他内容
         CONTENT_BEFORE_TOC=$(sed -n '/<!-- TOC -->/q;p' "$README_FILE")
         CONTENT_AFTER_TOC=$(sed -n '/<!-- TOC -->/,$p' "$README_FILE" | tail -n +2)
 
-        # 用 printf 拼接真正的换行
+        # 使用 printf 输出新的 TOC 内容
         {
-          printf "%s\n" "$CONTENT_BEFORE_TOC"
-          for toc_line in "${TOC_LINES[@]}"; do
+          printf "%s\n" "$CONTENT_BEFORE_TOC"   # 保留 TOC 占位符前的内容
+          for toc_line in "${TOC[@]}"; do       # 插入新生成的 TOC
             printf "%s\n" "$toc_line"
           done
-          printf "\n%s\n" "$CONTENT_AFTER_TOC"
+          printf "\n%s\n" "$CONTENT_AFTER_TOC"  # 保留 TOC 占位符后的内容
         } > "$README_FILE"
 
     - name: Commit changes to README.md
