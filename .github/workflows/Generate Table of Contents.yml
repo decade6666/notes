@@ -32,7 +32,7 @@ jobs:
               except:
                   return []
 
-              # 过滤出目录和.md文件（排除README本身）
+              # 过滤出目录和.md文件（严格排除README）
               valid_items = [i for i in items if i not in exclude and not i.startswith('.') and 
                              (os.path.isdir(os.path.join(path, i)) or (i.endswith('.md') and i.lower() != 'readme.md'))]
 
@@ -54,7 +54,7 @@ jobs:
           tree_content = ['notes/'] + get_tree('.')
           toc_block = '```\n' + '\n'.join(tree_content) + '\n```'
 
-          # 2. 读取并清洗 README
+          # 2. 读取并强力清洗 README
           readme_path = 'README.md'
           start_marker = '<!-- TOC_START -->'
           end_marker = '<!-- TOC_END -->'
@@ -63,20 +63,18 @@ jobs:
               with open(readme_path, 'r', encoding='utf-8') as f:
                   content = f.read()
 
-              # 寻找标记位置
-              if start_marker in content:
-                  # 只保留标记之前的内容，丢弃标记之后的所有内容（彻底解决多余内容问题）
-                  header = content.split(start_marker)[0].strip()
-                  # 重新组装：头部内容 + 目录块 + 标记（标记放在最后）
-                  new_content = header + '\n\n' + start_marker + '\n' + toc_block + '\n' + end_marker
-              else:
-                  # 如果没标记，则直接在原有内容后追加
-                  new_content = content.strip() + '\n\n' + start_marker + '\n' + toc_block + '\n' + end_marker
+              # 强力清理：只寻找文件中第一个出现的 '# ' 标题，忽略后面所有内容
+              # 这样可以防止重复的 '# notes' 标题出现
+              title_match = re.search(r'^#\s+.*', content, re.MULTILINE)
+              header = title_match.group(0) if title_match else '# notes'
               
-              # 3. 写入文件（确保末尾只有一个换行）
+              # 重新组装：标题 + 目录块
+              # 不再使用 split，直接覆盖旧内容，确保唯一性
+              new_content = f'{header}\n\n{start_marker}\n{toc_block}\n{end_marker}'
+              
               with open(readme_path, 'w', encoding='utf-8') as f:
                   f.write(new_content.strip() + '\n')
-              print('TOC updated and junk content removed.')
+              print('TOC cleaned and rebuilt successfully.')
           "
 
       - name: Commit and Push
@@ -84,10 +82,9 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add README.md
-          # 只有在有变化时才提交
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "docs: auto update directory tree and clean junk"
+            git commit -m "docs: auto update directory tree (clean build) [skip ci]"
             git push
           fi
