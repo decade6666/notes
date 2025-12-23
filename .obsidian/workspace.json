@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "EDC(Electronic Data Capture System)/CIMS/页面事件/Deriva_AGE.md",
+                "file": "EDC(Electronic Data Capture System)/CIMS/页面事件/Deriva_CCR.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Deriva_AGE"
+              "title": "Deriva_CCR"
             }
           }
         ]
@@ -118,7 +118,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "EDC(Electronic Data Capture System)/CIMS/页面事件/Deriva_AGE.md",
+                "file": "EDC(Electronic Data Capture System)/CIMS/页面事件/Deriva_CCR.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -128,7 +128,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Deriva_AGE 的反向链接列表"
+              "title": "Deriva_CCR 的反向链接列表"
             }
           },
           {
@@ -137,12 +137,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "EDC(Electronic Data Capture System)/CIMS/页面事件/Deriva_AGE.md",
+                "file": "EDC(Electronic Data Capture System)/CIMS/页面事件/Deriva_CCR.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Deriva_AGE 的出链列表"
+              "title": "Deriva_CCR 的出链列表"
             }
           },
           {
@@ -166,13 +166,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "EDC(Electronic Data Capture System)/CIMS/页面事件/Deriva_AGE.md",
+                "file": "EDC(Electronic Data Capture System)/CIMS/页面事件/Deriva_CCR.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Deriva_AGE 的大纲"
+              "title": "Deriva_CCR 的大纲"
             }
           }
         ]
@@ -194,12 +194,13 @@
   },
   "active": "0927ca417dcb1db3",
   "lastOpenFiles": [
-    "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/AGE.md",
-    "EDC(Electronic Data Capture System)/CIMS/页面事件/Deriva_AGE.md",
-    "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/BMI.md",
     "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/CCR.md",
-    "EDC(Electronic Data Capture System)/CIMS/页面事件",
+    "EDC(Electronic Data Capture System)/CIMS/页面事件/Deriva_CCR.md",
     "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/QTCF.md",
+    "EDC(Electronic Data Capture System)/CIMS/页面事件/Deriva_AGE.md",
+    "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/AGE.md",
+    "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/BMI.md",
+    "EDC(Electronic Data Capture System)/CIMS/页面事件",
     "README.md",
     "附件/Pasted image 20251223100509.png",
     "ImmortalWrt(Openwrt)/2.PassWall+双Adugard Home.md",
