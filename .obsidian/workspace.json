@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "e183e1029f738a3a",
+        "id": "7ea918de342e0941",
         "type": "tabs",
         "children": [
           {
-            "id": "0927ca417dcb1db3",
+            "id": "5aa6150e9f3bc5ee",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "split-diff-view",
               "state": {
-                "file": "EDC(Electronic Data Capture System)/CIMS/EDit Check/非完整日期时间比较大小.md",
-                "mode": "preview",
-                "source": false
+                "aFile": ".obsidian/workspace.json",
+                "bFile": ".obsidian/workspace.json",
+                "aRef": ""
               },
-              "icon": "lucide-file",
-              "title": "非完整日期时间比较大小"
+              "icon": "diff",
+              "title": "Diff: workspace.json"
             }
           }
         ]
@@ -78,7 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 358.5
+    "width": 300
   },
   "right": {
     "id": "6b811ce8c6bd1ecb",
@@ -89,13 +89,18 @@
         "type": "tabs",
         "children": [
           {
-            "id": "55c621bf5505bbf3",
+            "id": "eb8c555636795207",
             "type": "leaf",
             "state": {
-              "type": "git-view",
-              "state": {},
-              "icon": "git-pull-request",
-              "title": "Source Control"
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "标签"
             }
           },
           {
@@ -113,12 +118,37 @@
             }
           },
           {
-            "id": "19f8673ca20bb367",
+            "id": "7ef55ef9b5f9ba28",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "ImmortalWrt(OpenWrt)/1.接口配置.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "1.接口配置 的大纲"
+            }
+          },
+          {
+            "id": "4101ecd599a5af2e",
+            "type": "leaf",
+            "state": {
+              "type": "git-view",
+              "state": {},
+              "icon": "git-pull-request",
+              "title": "Source Control"
+            }
+          },
+          {
+            "id": "5769c6cd415e1b42",
             "type": "leaf",
             "state": {
               "type": "backlink",
               "state": {
-                "file": "EDC(Electronic Data Capture System)/CIMS/EDit Check/非完整日期时间比较大小.md",
+                "file": "ImmortalWrt(OpenWrt)/2.PassWall+双Adugard Home.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -128,92 +158,47 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "非完整日期时间比较大小 的反向链接列表"
+              "title": "2.PassWall+双Adugard Home 的反向链接列表"
             }
           },
           {
-            "id": "762750f3d2403857",
+            "id": "9e34d28e9ab388ef",
             "type": "leaf",
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "EDC(Electronic Data Capture System)/CIMS/EDit Check/非完整日期时间比较大小.md",
+                "file": "ImmortalWrt(OpenWrt)/2.PassWall+双Adugard Home.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "非完整日期时间比较大小 的出链列表"
-            }
-          },
-          {
-            "id": "3784d69c1b8d176a",
-            "type": "leaf",
-            "state": {
-              "type": "tag",
-              "state": {
-                "sortOrder": "frequency",
-                "useHierarchy": true,
-                "showSearch": false,
-                "searchQuery": ""
-              },
-              "icon": "lucide-tags",
-              "title": "标签"
-            }
-          },
-          {
-            "id": "9a72db2d478181a1",
-            "type": "leaf",
-            "state": {
-              "type": "outline",
-              "state": {
-                "file": "EDC(Electronic Data Capture System)/CIMS/EDit Check/非完整日期时间比较大小.md",
-                "followCursor": false,
-                "showSearch": false,
-                "searchQuery": ""
-              },
-              "icon": "lucide-list",
-              "title": "非完整日期时间比较大小 的大纲"
+              "title": "2.PassWall+双Adugard Home 的出链列表"
             }
           }
-        ]
+        ],
+        "currentTab": 3
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 300
   },
   "left-ribbon": {
     "hiddenItems": {
       "switcher:打开快速切换": false,
-      "graph:查看关系图谱": true,
-      "canvas:新建白板": true,
-      "daily-notes:打开/创建今天的日记": true,
-      "templates:插入模板": true,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
       "command-palette:打开命令面板": false,
+      "bases:创建新数据库": false,
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "0927ca417dcb1db3",
+  "active": "5aa6150e9f3bc5ee",
   "lastOpenFiles": [
-    "EDC(Electronic Data Capture System)/CIMS/页面事件/SubjStuUP.md",
-    "EDC(Electronic Data Capture System)/CIMS/EDit Check/非完整日期时间比较大小.md",
-    "EDC(Electronic Data Capture System)/CIMS/EDit Check",
-    "EDC(Electronic Data Capture System)/CIMS/页面事件/setSystemSubjectValue_Subject_Note（第二种关联方式）.md",
-    "EDC(Electronic Data Capture System)/CIMS/页面事件/setSystemSubjectValue_Subject_Note.md",
-    "EDC(Electronic Data Capture System)/CIMS/页面事件/Disable_Form_30~700.md",
-    "EDC(Electronic Data Capture System)/CIMS/页面事件/Deriva_GFR.md",
-    "EDC(Electronic Data Capture System)/CIMS/页面事件/Deriva_CCR.md",
-    "EDC(Electronic Data Capture System)/CIMS/页面事件/Deriva_AGE.md",
-    "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/CCR.md",
-    "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/QTCF.md",
-    "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/AGE.md",
-    "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算/BMI.md",
-    "EDC(Electronic Data Capture System)/CIMS/页面事件",
     "README.md",
+    "ImmortalWrt(OpenWrt)/2.PassWall+双Adugard Home.md",
     "附件/Pasted image 20251223100509.png",
-    "ImmortalWrt(Openwrt)/2.PassWall+双Adugard Home.md",
-    "ImmortalWrt(Openwrt)/1.接口配置.md",
-    "未命名.canvas",
-    "conflict-files-obsidian-git.md",
     "附件/Pasted image 20251215103821.png",
     "附件/Pasted image 20251215095722.png",
     "附件/Pasted image 20251215095448.png",
@@ -221,14 +206,25 @@
     "附件/Pasted image 20251215095327.png",
     "附件/Pasted image 20251215092420.png",
     "附件/Pasted image 20251215092342.png",
-    "EDC(Electronic Data Capture System)/CIMS/前端逻辑-衍生计算",
-    "EDC(Electronic Data Capture System)/Viedoc",
-    "EDC(Electronic Data Capture System)/eCollect",
-    "EDC(Electronic Data Capture System)/CIMS",
-    "EDC(Electronic Data Capture System)",
-    "附件/adguard_clean.tar",
+    "EDC/CIMS/页面事件/SubjStuUP.md",
+    "EDC/CIMS/页面事件/setSystemSubjectValue_Subject_Note（第二种关联方式）.md",
+    "EDC/CIMS/页面事件/setSystemSubjectValue_Subject_Note.md",
+    "EDC/CIMS/页面事件/Disable_Form_30~700.md",
+    "EDC/CIMS/页面事件/Deriva_GFR.md",
+    "EDC/CIMS/页面事件/Deriva_CCR.md",
+    "EDC/CIMS/页面事件/Deriva_AGE.md",
+    "EDC/CIMS/前端逻辑-衍生计算/QTCF.md",
+    "EDC/CIMS/前端逻辑-衍生计算/CCR.md",
+    "EDC/CIMS/前端逻辑-衍生计算/BMI.md",
+    "EDC/CIMS/前端逻辑-衍生计算/AGE.md",
+    "EDC/CIMS/EDit Check/非完整日期时间比较大小.md",
+    "EDC/CIMS/页面事件",
+    "EDC/CIMS/前端逻辑-衍生计算",
+    "EDC/CIMS/EDit Check",
+    "EDC/CIMS",
+    "EDC",
     "ImmortalWrt(OpenWrt)/1.接口配置.md",
-    "ImmortalWrt(OpenWrt)/2.PassWall+双Adugard Home.md",
+    "附件/adguard_clean.tar",
     "ImmortalWrt(Openwrt)/2.passwall.md",
     "未命名.base",
     "附件"
