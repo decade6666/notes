@@ -9,7 +9,7 @@ on:
     paths:
       - '**/*.md'
       - README.md
-  workflow_dispatch:  # 添加此行来支持手动触发
+  workflow_dispatch:  # 支持手动触发
 
 jobs:
   generate-toc:
@@ -40,10 +40,15 @@ jobs:
           # Get the header level and title
           HEADER_LEVEL=$(echo "$line" | sed -E 's/^(#{1,6})\s.*/\1/' | wc -c)
           HEADER_TEXT=$(echo "$line" | sed -E 's/^(#{1,6})\s(.*)/\2/')
+          
           # Remove special characters and spaces for the anchor
           ANCHOR=$(echo "$HEADER_TEXT" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g')
-          # Generate TOC entry
-          echo "$(printf '%*s' $((HEADER_LEVEL - 1)) '')- [$HEADER_TEXT](#$ANCHOR)"
+
+          # Ensure there are no extra characters like raw links
+          if [[ "$HEADER_TEXT" != *"https://raw.githubusercontent.com"* ]]; then
+            # Generate TOC entry
+            echo "$(printf '%*s' $((HEADER_LEVEL - 1)) '')- [$HEADER_TEXT](#$ANCHOR)"
+          fi
         done)
 
         # Extract the part before and after TOC placeholder
@@ -62,4 +67,3 @@ jobs:
         author_name: "GitHub Actions"
         author_email: "actions@github.com"
         message: "Update Table of Contents in README.md"
-        # 不再显式传递 token，使用默认的 GITHUB_TOKEN 认证
