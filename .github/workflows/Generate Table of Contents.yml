@@ -29,10 +29,11 @@ jobs:
 
           def get_tree(path, prefix=''):
               # === 配置排除列表 ===
-              # 在这里添加了 '附件'
+              # 1. 添加 'update_toc.py' 防止脚本把自己扫进去
+              # 2. 保持之前的 '附件' 等配置
               exclude = {
                   '.git', '.github', 'images', 'assets', 'node_modules', 
-                  '.vscode', 'venv', '附件'
+                  '.vscode', 'venv', '附件', 'update_toc.py'
               }
               
               try:
@@ -43,18 +44,17 @@ jobs:
 
               valid_items = []
               for item in items:
-                  # 1. 排除在黑名单中的名称 (如 '附件')
-                  # 2. 排除以 . 开头的文件/文件夹
+                  # 排除黑名单和隐藏文件
                   if item in exclude or item.startswith('.'):
                       continue
                   
                   full_path = os.path.join(path, item)
                   
-                  # === 核心筛选逻辑 ===
-                  # 如果是文件夹：保留
+                  # === 筛选逻辑 ===
+                  # 文件夹：保留
                   if os.path.isdir(full_path):
                       valid_items.append(item)
-                  # 如果是文件：只要不是 README.md 就保留 (不再限制 .md 后缀，所以 test.txt 会显示)
+                  # 文件：保留所有非 README.md 的文件 (test.txt 会显示)
                   elif os.path.isfile(full_path) and item.lower() != 'readme.md':
                       valid_items.append(item)
 
@@ -76,14 +76,14 @@ jobs:
           print("Generating tree...")
           tree_data = ['notes/'] + get_tree('.')
           
-          # 使用反引号包裹生成 Markdown 代码块
+          # 生成 Markdown 代码块
           toc_content = '```\n' + '\n'.join(tree_data) + '\n```'
           
           readme_path = 'README.md'
           start_marker = '<!-- TOC_START -->'
           end_marker = '<!-- TOC_END -->'
           
-          # 正则匹配标记 (忽略大小写和空格)
+          # 正则匹配标记
           regex_start = re.compile(r'<!--\s*TOC_START\s*-->', re.IGNORECASE)
 
           if os.path.exists(readme_path):
@@ -92,32 +92,31 @@ jobs:
 
               match = regex_start.search(content)
               if match:
-                  # 保留标记前的所有内容（标题/简介）
+                  # 保留头部，替换尾部
                   header = content[:match.start()].strip()
-                  # 防止头部为空
                   if not header:
                       header = '# Notes'
                   
-                  # 拼接：Header + 标记 + 目录树 + 结束标记
-                  # (标记后的所有旧内容会被自动截断/丢弃)
                   final_content = f'{header}\n\n{start_marker}\n{toc_content}\n{end_marker}\n'
-                  print('Success: Updated README and preserved header.')
+                  print('Success: Updated README.')
               else:
-                  # 没找到标记，追加到文件末尾
+                  # 追加
                   final_content = content.strip() + f'\n\n{start_marker}\n{toc_content}\n{end_marker}\n'
-                  print('Success: Appended TOC to README.')
+                  print('Success: Appended to README.')
 
               with open(readme_path, 'w', encoding='utf-8') as f:
                   f.write(final_content)
           else:
-              # README 不存在，创建新文件
               with open(readme_path, 'w', encoding='utf-8') as f:
                   f.write(f'# Notes\n\n{start_marker}\n{toc_content}\n{end_marker}\n')
               print('Success: Created new README.')
           EOF
 
       - name: Execute Script
-        run: python3 update_toc.py
+        run: |
+          python3 update_toc.py
+          # 运行完立即删除脚本，保持环境清洁
+          rm update_toc.py
 
       - name: Commit and Push
         run: |
@@ -127,6 +126,6 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "docs: update directory tree (show all files, ignore '附件') [skip ci]"
+            git commit -m "docs: clean update of directory tree [skip ci]"
             git push
           fi
