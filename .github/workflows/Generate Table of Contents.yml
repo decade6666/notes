@@ -1,0 +1,87 @@
+name: Generate Table of Contents
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 每天北京时间 05:00 (UTC 21:00)
+    - cron: '0 21 * * *'
+
+jobs:
+  update-toc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Generate and Update TOC
+        run: |
+          python3 -c "
+          import os
+          import re
+          from pathlib import Path
+
+          # 1. 定义排除目录
+          exclude_dirs = {'.git', '.github', 'images', 'assets', 'node_modules', '.vscode'}
+          toc_lines = []
+
+          # 2. 遍历目录
+          for root, dirs, files in os.walk('.'):
+              # 过滤不需要的文件夹
+              dirs[:] = [d for d in dirs if not d.startswith('.') and d not in exclude_dirs]
+              
+              for file in files:
+                  if file.endswith('.md'):
+                      # 获取相对路径 (例如: 01-Java/test.md)
+                      rel_path = os.path.relpath(os.path.join(root, file), '.')
+                      # 转换为标准的 POSIX 路径（使用正斜杠 /）
+                      posix_path = Path(rel_path).as_posix()
+                      
+                      # 严格匹配 4b3fc15 的格式:
+                      # - [路径/文件名.md](./路径/文件名.md)
+                      # 注意：README.md 如果在根目录，posix_path 就是 README.md
+                      line = f'- [{posix_path}](./{posix_path})'
+                      toc_lines.append(line)
+
+          # 3. 排序（确保顺序稳定，README.md 通常排在前面或按字母序）
+          toc_lines.sort()
+          toc_content = '\n'.join(toc_lines)
+
+          # 4. 替换标记位
+          readme_path = 'README.md'
+          if os.path.exists(readme_path):
+              with open(readme_path, 'r', encoding='utf-8') as f:
+                  content = f.read()
+              
+              start_marker = '<!-- TOC_START -->'
+              end_marker = '<!-- TOC_END -->'
+              # 使用非贪婪匹配替换标记中间的所有内容
+              pattern = f'{start_marker}.*?{end_marker}'
+              replacement = f'{start_marker}\n\n{toc_content}\n\n{end_marker}'
+              
+              if re.search(pattern, content, re.DOTALL):
+                  new_content = re.sub(pattern, replacement, content, flags=re.DOTALL)
+                  with open(readme_path, 'w', encoding='utf-8') as f:
+                      f.write(new_content)
+                  print('TOC updated successfully in flat style.')
+              else:
+                  print('Error: Markers <!-- TOC_START --> and <!-- TOC_END --> not found.')
+                  exit(1)
+          "
+
+      - name: Commit and Push
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add README.md
+          # 检查是否有改动，无改动不提交
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "docs: auto update table of contents"
+            git push
+          fi
