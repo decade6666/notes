@@ -33,25 +33,27 @@ jobs:
         fi
 
         # Generate the Table of Contents
-        TOC=$(grep -E '^(#{1,6})\s' "$README_FILE" | grep -vE '^\.\S+|附件' | while read -r line; do
-          # Get the header level and title
-          HEADER_TEXT=$(echo "$line" | sed -E 's/^(#{1,6})\s(.*)/\2/')
-          
-          # Remove special characters and spaces for the anchor
-          ANCHOR=$(echo "$HEADER_TEXT" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g')
+        TOC=""
+        while IFS= read -r line; do
+          # Ensure only valid headers (and exclude unwanted ones)
+          if [[ "$line" =~ ^#{1,6}\s ]]; then
+            HEADER_TEXT=$(echo "$line" | sed -E 's/^(#{1,6})\s(.*)/\2/')
+            ANCHOR=$(echo "$HEADER_TEXT" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g')
 
-          # Check for duplicates and unwanted headers like 'notes' or '文件目录'
-          if [[ ! "$HEADER_TEXT" =~ "notes" && ! "$HEADER_TEXT" =~ "文件目录" ]]; then
-            echo "$(printf '%*s' $((HEADER_LEVEL - 1)) '')- [$HEADER_TEXT](#$ANCHOR)"
+            # Check for duplicates and unwanted headers like 'notes' or '文件目录'
+            if [[ ! "$HEADER_TEXT" =~ "notes" && ! "$HEADER_TEXT" =~ "文件目录" ]]; then
+              # Format the TOC entry with proper indentation and without unnecessary newlines
+              TOC+=$(printf "%*s" $(( ${#line} / 2 )) "")- "[$HEADER_TEXT](#$ANCHOR)"$'\n'
+            fi
           fi
-        done)
+        done < <(grep -E '^(#{1,6})\s' "$README_FILE" | grep -vE '^\.\S+|附件')
 
         # Extract the part before and after TOC placeholder
         CONTENT_BEFORE_TOC=$(sed -n '/<!-- TOC -->/q;p' "$README_FILE")
         CONTENT_AFTER_TOC=$(sed -n '/<!-- TOC -->/,$p' "$README_FILE" | tail -n +2)
 
         # Replace the TOC placeholder with the generated TOC
-        NEW_CONTENT="$CONTENT_BEFORE_TOC\n$TOC\n$CONTENT_AFTER_TOC"
+        NEW_CONTENT="$CONTENT_BEFORE_TOC$'\n'$TOC$'\n'$CONTENT_AFTER_TOC"
 
         # Write the modified content back to README.md
         echo "$NEW_CONTENT" > "$README_FILE"
