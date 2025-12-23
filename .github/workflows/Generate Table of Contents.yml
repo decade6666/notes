@@ -26,9 +26,6 @@ jobs:
         # Path to the README.md file
         README_FILE="README.md"
 
-        # Exclude files and directories
-        EXCLUDE_DIRS="附件"
-
         # Create the Table of Contents placeholder if not present
         TOC_PLACEHOLDER="<!-- TOC -->"
         if ! grep -q "$TOC_PLACEHOLDER" "$README_FILE"; then
@@ -38,16 +35,14 @@ jobs:
         # Generate the Table of Contents
         TOC=$(grep -E '^(#{1,6})\s' "$README_FILE" | grep -vE '^\.\S+|附件' | while read -r line; do
           # Get the header level and title
-          HEADER_LEVEL=$(echo "$line" | sed -E 's/^(#{1,6})\s.*/\1/' | wc -c)
           HEADER_TEXT=$(echo "$line" | sed -E 's/^(#{1,6})\s(.*)/\2/')
           
           # Remove special characters and spaces for the anchor
           ANCHOR=$(echo "$HEADER_TEXT" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g')
 
-          # Ensure there are no extra characters like raw links
-          if [[ "$HEADER_TEXT" != *"https://raw.githubusercontent.com"* ]]; then
-            # Generate TOC entry
-            echo "$(printf '%*s' $((HEADER_LEVEL - 1)) '')- [$HEADER_TEXT](#$ANCHOR)"
+          # Generate TOC entry, ensure no extra URLs or unwanted content
+          if [[ ! "$HEADER_TEXT" =~ "https://" ]]; then
+            echo "- [$HEADER_TEXT](#$ANCHOR)"
           fi
         done)
 
