@@ -22,25 +22,23 @@ jobs:
         run: |
           python3 -c "
           import os
+          import re
 
-          # === 1. 生成目录树逻辑 ===
+          # === 1. 目录树生成逻辑 (保持不变) ===
           def get_tree(path, prefix=''):
-              # 排除名单 (根据你的需求调整)
               exclude = {'.git', '.github', 'images', 'assets', 'node_modules', '.vscode', 'venv'}
               try:
                   items = sorted(os.listdir(path))
               except:
                   return []
 
-              # 筛选：有效的文件夹 或 .md 文件 (排除 README.md)
               valid_items = []
               for item in items:
                   if item in exclude or item.startswith('.'):
                       continue
                   full_path = os.path.join(path, item)
-                  if os.path.isdir(full_path):
-                      valid_items.append(item)
-                  elif item.endswith('.md') and item.lower() != 'readme.md':
+                  # 只列出目录和 .md 文件
+                  if os.path.isdir(full_path) or (item.endswith('.md') and item.lower() != 'readme.md'):
                       valid_items.append(item)
 
               tree_lines = []
@@ -57,44 +55,47 @@ jobs:
                       tree_lines.append(f'{prefix}{connector}{item}')
               return tree_lines
 
-          # 生成 Tree 字符串
+          # === 2. 核心更新逻辑 ===
           tree_data = ['notes/'] + get_tree('.')
           toc_content = '```\n' + '\n'.join(tree_data) + '\n```'
-
-          # === 2. 安全更新 README 逻辑 ===
+          
           readme_path = 'README.md'
           start_marker = '<!-- TOC_START -->'
           end_marker = '<!-- TOC_END -->'
           
-          # 构造新的目录块
-          new_toc_block = f'{start_marker}\n{toc_content}\n{end_marker}'
+          # 正则匹配开始标记（允许空格，忽略大小写）
+          # 这能防止因为格式化导致的匹配失败
+          regex_start = re.compile(r'<!--\s*TOC_START\s*-->', re.IGNORECASE)
 
           if os.path.exists(readme_path):
               with open(readme_path, 'r', encoding='utf-8') as f:
                   content = f.read()
 
-              # 寻找标记位置
-              if start_marker in content:
-                  # 【关键步骤】
-                  # 找到第一个 <!-- TOC_START -->，只保留它之前的所有内容 (Intro)
-                  # 之后的所有内容（旧目录、重复项、垃圾尾巴）全部丢弃
-                  header_content = content.split(start_marker)[0].rstrip()
+              match = regex_start.search(content)
+              if match:
+                  # 【关键】：保留标记之前的所有内容（标题、简介）
+                  header = content[:match.start()].strip()
                   
-                  # 重新组装：头部 + 换行 + 新目录块
-                  final_content = f'{header_content}\n\n{new_toc_block}\n'
-                  print('Found existing marker. Truncated junk and updated TOC.')
+                  # 如果头部为空（说明文件以标记开头），自动补一个标题
+                  if not header:
+                      header = '# Notes'
+                  
+                  # 重组：Header + 换行 + 标记 + 目录 + 结束标记
+                  # 标记后的旧内容（content[match.end():]）被完全丢弃，彻底清除垃圾
+                  final_content = f'{header}\n\n{start_marker}\n{toc_content}\n{end_marker}\n'
+                  print('✅ Found marker. Preserved header, updated TOC, and removed trailing junk.')
               else:
-                  # 没找到标记，直接追加
-                  final_content = f'{content.rstrip()}\n\n{new_toc_block}\n'
-                  print('Marker not found. Appended TOC to end.')
+                  # 没找到标记：在末尾追加
+                  print('⚠️ Marker not found. Appending to file.')
+                  final_content = content.strip() + f'\n\n{start_marker}\n{toc_content}\n{end_marker}\n'
 
               with open(readme_path, 'w', encoding='utf-8') as f:
                   f.write(final_content)
           else:
-              # 文件不存在，新建
+              # 文件不存在
               with open(readme_path, 'w', encoding='utf-8') as f:
-                  f.write(f'# Notes\n\n{new_toc_block}\n')
-              print('README.md created.')
+                  f.write(f'# Notes\n\n{start_marker}\n{toc_content}\n{end_marker}\n')
+              print('✅ Created new README.md.')
           "
 
       - name: Commit and Push
@@ -102,10 +103,9 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add README.md
-          # 防止空提交报错，且跳过 CI 触发
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "docs: sync directory tree [skip ci]"
+            git commit -m "docs: fix readme structure and update toc [skip ci]"
             git push
           fi
