@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "test.md",
+                "file": "test.txt.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "test"
+              "title": "test.txt"
             }
           }
         ]
@@ -194,9 +194,9 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "5aa6150e9f3bc5ee",
+  "active": "10c991e4fff37474",
   "lastOpenFiles": [
-    "test.md",
+    "test.txt.md",
     "README.md",
     "ImmortalWrt(OpenWrt)/2.PassWall+双Adugard Home.md",
     "附件/Pasted image 20251223100509.png",
