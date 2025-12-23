@@ -62,3 +62,5 @@ jobs:
         author_name: "GitHub Actions"
         author_email: "actions@github.com"
         message: "Update Table of Contents in README.md"
+        # 使用 GITHUB_TOKEN 来确保可以进行推送
+        token: ${{ secrets.GITHUB_TOKEN }}
