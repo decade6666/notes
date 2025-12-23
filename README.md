@@ -27,5 +27,3 @@ notes/
     └── 2.PassWall+双Adugard Home.md
 
 ```
-- [notes](#notes)
-- [文件目录](#)
