@@ -9,6 +9,9 @@ on:
 jobs:
   update-toc:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -18,18 +21,20 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Generate and Update TOC
+      - name: Create Python Script
+        # 使用 EOF 写入文件，完全避免 Bash 转义干扰
         run: |
-          python3 -c "
+          cat << 'EOF' > update_toc.py
           import os
           import re
 
-          # === 1. 目录树生成逻辑 (保持不变) ===
           def get_tree(path, prefix=''):
+              # 排除名单
               exclude = {'.git', '.github', 'images', 'assets', 'node_modules', '.vscode', 'venv'}
               try:
                   items = sorted(os.listdir(path))
-              except:
+              except Exception as e:
+                  print(f"Error reading {path}: {e}")
                   return []
 
               valid_items = []
@@ -37,7 +42,7 @@ jobs:
                   if item in exclude or item.startswith('.'):
                       continue
                   full_path = os.path.join(path, item)
-                  # 只列出目录和 .md 文件
+                  # 筛选目录和 .md 文件
                   if os.path.isdir(full_path) or (item.endswith('.md') and item.lower() != 'readme.md'):
                       valid_items.append(item)
 
@@ -55,16 +60,18 @@ jobs:
                       tree_lines.append(f'{prefix}{connector}{item}')
               return tree_lines
 
-          # === 2. 核心更新逻辑 ===
+          # 生成目录数据
+          print("Generating tree...")
           tree_data = ['notes/'] + get_tree('.')
+          
+          # 关键修复：这里的反引号现在在 Python 文件中是安全的
           toc_content = '```\n' + '\n'.join(tree_data) + '\n```'
           
           readme_path = 'README.md'
           start_marker = '<!-- TOC_START -->'
           end_marker = '<!-- TOC_END -->'
           
-          # 正则匹配开始标记（允许空格，忽略大小写）
-          # 这能防止因为格式化导致的匹配失败
+          # 宽容的正则匹配，防止因空格问题找不到标记
           regex_start = re.compile(r'<!--\s*TOC_START\s*-->', re.IGNORECASE)
 
           if os.path.exists(readme_path):
@@ -73,21 +80,19 @@ jobs:
 
               match = regex_start.search(content)
               if match:
-                  # 【关键】：保留标记之前的所有内容（标题、简介）
+                  # 保留标记前的所有内容（标题/简介）
                   header = content[:match.start()].strip()
-                  
-                  # 如果头部为空（说明文件以标记开头），自动补一个标题
                   if not header:
                       header = '# Notes'
                   
-                  # 重组：Header + 换行 + 标记 + 目录 + 结束标记
-                  # 标记后的旧内容（content[match.end():]）被完全丢弃，彻底清除垃圾
+                  # 重组文件：Header + 新目录块
+                  # 注意：标记之后的所有旧内容都被丢弃，防止残留
                   final_content = f'{header}\n\n{start_marker}\n{toc_content}\n{end_marker}\n'
-                  print('✅ Found marker. Preserved header, updated TOC, and removed trailing junk.')
+                  print('Success: Updated existing README.')
               else:
-                  # 没找到标记：在末尾追加
-                  print('⚠️ Marker not found. Appending to file.')
+                  # 没找到标记，追加到末尾
                   final_content = content.strip() + f'\n\n{start_marker}\n{toc_content}\n{end_marker}\n'
+                  print('Success: Appended to README.')
 
               with open(readme_path, 'w', encoding='utf-8') as f:
                   f.write(final_content)
@@ -95,8 +100,11 @@ jobs:
               # 文件不存在
               with open(readme_path, 'w', encoding='utf-8') as f:
                   f.write(f'# Notes\n\n{start_marker}\n{toc_content}\n{end_marker}\n')
-              print('✅ Created new README.md.')
-          "
+              print('Success: Created new README.')
+          EOF
+
+      - name: Execute Script
+        run: python3 update_toc.py
 
       - name: Commit and Push
         run: |
@@ -106,6 +114,6 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "docs: fix readme structure and update toc [skip ci]"
+            git commit -m "docs: fix readme generation [skip ci]"
             git push
           fi
