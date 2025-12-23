@@ -25,77 +25,58 @@ jobs:
           import re
 
           def get_tree(path, prefix=''):
-              # 1. 严格过滤不需要显示的目录
-              exclude = {'.git', '.github', 'images', 'assets', 'node_modules', '.vscode', 'venv', 'temp'}
-              
+              # 排除不需要的目录
+              exclude = {'.git', '.github', 'images', 'assets', 'node_modules', '.vscode', 'venv'}
               try:
                   items = sorted(os.listdir(path))
               except:
                   return []
 
-              # 筛选：是目录或者是以 .md 结尾的文件（排除 README.md）
-              valid_items = []
-              for item in items:
-                  if item in exclude or item.startswith('.'):
-                      continue
-                  full_path = os.path.join(path, item)
-                  if os.path.isdir(full_path) or (item.endswith('.md') and item.lower() != 'readme.md'):
-                      valid_items.append(item)
+              # 过滤出目录和.md文件（排除README本身）
+              valid_items = [i for i in items if i not in exclude and not i.startswith('.') and 
+                             (os.path.isdir(os.path.join(path, i)) or (i.endswith('.md') and i.lower() != 'readme.md'))]
 
               tree_lines = []
               for i, item in enumerate(valid_items):
                   is_last = (i == len(valid_items) - 1)
-                  # 决定当前行使用的连接符
                   connector = '└── ' if is_last else '├── '
-                  
                   full_path = os.path.join(path, item)
+                  
                   if os.path.isdir(full_path):
-                      # 目录项加斜杠显示
                       tree_lines.append(f'{prefix}{connector}{item}/')
-                      # 计算下一级缩进：如果当前是末尾，后续用空格；否则用竖线
                       new_prefix = prefix + ('    ' if is_last else '│   ')
                       tree_lines.extend(get_tree(full_path, new_prefix))
                   else:
                       tree_lines.append(f'{prefix}{connector}{item}')
               return tree_lines
 
-          # 生成完整的树状文本块
-          tree_data = ['notes/'] + get_tree('.')
-          toc_block = '```\n' + '\n'.join(tree_data) + '\n```'
+          # 1. 生成树状结构块
+          tree_content = ['notes/'] + get_tree('.')
+          toc_block = '```\n' + '\n'.join(tree_content) + '\n```'
 
+          # 2. 读取并清洗 README
           readme_path = 'README.md'
           start_marker = '<!-- TOC_START -->'
           end_marker = '<!-- TOC_END -->'
-          # 构造标准替换块（前后留空行确保 Markdown 渲染正常）
-          replacement = f'\n{start_marker}\n{toc_block}\n{end_marker}\n'
-
+          
           if os.path.exists(readme_path):
               with open(readme_path, 'r', encoding='utf-8') as f:
                   content = f.read()
 
-              # 使用更健壮的正则表达式，匹配可能存在的重复块或旧块
-              # [\\s\\S]*? 是非贪婪匹配，确保只匹配一对标记
-              pattern = re.compile(rf'{start_marker}[\s\S]*?{end_marker}', re.DOTALL)
-              
-              if pattern.search(content):
-                  # 核心修复：清理掉可能由于手动编辑留下的多余空行，并替换
-                  new_content = pattern.sub(replacement.strip(), content)
-                  # 再次检查是否有重复的标记（防止之前更新失败留下的残余）
-                  if len(re.findall(start_marker, new_content)) > 1:
-                      # 如果还存在多对标记，强制只保留最后一对的内容
-                      parts = re.split(start_marker, new_content)
-                      # 保留第一部分（头部内容）和最后一部分（包含最后一个 TOC 块的内容）
-                      new_content = parts[0] + replacement + re.split(end_marker, parts[-1])[-1]
+              # 寻找标记位置
+              if start_marker in content:
+                  # 只保留标记之前的内容，丢弃标记之后的所有内容（彻底解决多余内容问题）
+                  header = content.split(start_marker)[0].strip()
+                  # 重新组装：头部内容 + 目录块 + 标记（标记放在最后）
+                  new_content = header + '\n\n' + start_marker + '\n' + toc_block + '\n' + end_marker
               else:
-                  # 如果没找到标记，则在末尾追加
-                  new_content = content.strip() + '\n\n' + replacement
-
-              # 最终清理：确保文件末尾没有过多的连续换行
-              new_content = re.sub(r'\n{3,}', '\n\n', new_content)
-
+                  # 如果没标记，则直接在原有内容后追加
+                  new_content = content.strip() + '\n\n' + start_marker + '\n' + toc_block + '\n' + end_marker
+              
+              # 3. 写入文件（确保末尾只有一个换行）
               with open(readme_path, 'w', encoding='utf-8') as f:
                   f.write(new_content.strip() + '\n')
-              print('TOC tree updated successfully.')
+              print('TOC updated and junk content removed.')
           "
 
       - name: Commit and Push
@@ -103,9 +84,10 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add README.md
+          # 只有在有变化时才提交
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "docs: auto update directory tree [skip ci]"
+            git commit -m "docs: auto update directory tree and clean junk"
             git push
           fi
