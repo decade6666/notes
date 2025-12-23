@@ -1,9 +1,9 @@
 name: Generate Table of Contents
 
 on:
-  workflow_dispatch:  # 手动触发
+  workflow_dispatch:        # 手动运行
   schedule:
-    - cron: '0 21 * * *'  # 每天 05:00 AM UTC+8（21:00 UTC）
+    - cron: '0 21 * * *'    # UTC 21:00 = UTC+8 05:00
 
 jobs:
   generate-toc:
@@ -11,55 +11,53 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
-    - name: Generate Table of Contents for README.md
+    - name: Build TOC and update README.md
+      shell: bash
       run: |
-        #!/bin/bash
-        README_FILE="README.md"
-        TOC_PLACEHOLDER="<!-- TOC -->"
+        set -euo pipefail
 
-        # Ensure placeholder exists
-        if ! grep -q "$TOC_PLACEHOLDER" "$README_FILE"; then
-          printf "\n%s\n" "$TOC_PLACEHOLDER" >> "$README_FILE"
+        README="README.md"
+        PLACEHOLDER="<!-- TOC -->"
+
+        # 加上占位符（如果没有）
+        if ! grep -q "$PLACEHOLDER" "$README"; then
+          echo "$PLACEHOLDER" >> "$README"
         fi
 
-        # Build TOC from headings in README (ignore dot-start lines and '附件')
+        # 提取 headings
         TOC_LINES=()
-        while IFS= read -r line; do
-          HEADER_TEXT="$(printf "%s" "$line" | sed -E 's/^(#{1,6})[[:space:]]+(.*)/\2/')"
-
-          # GitHub-ish anchor (basic)
-          ANCHOR="$(printf "%s" "$HEADER_TEXT" \
+        while IFS= read -r H; do
+          HEAD=$(printf "%s" "$H" | sed -E 's/^(#{1,6})[[:space:]]+(.*)/\2/')
+          ANCHOR=$(printf "%s" "$HEAD" \
             | tr '[:upper:]' '[:lower:]' \
-            | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//g')"
+            | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')
+          TOC_LINES+=("- [$HEAD](#$ANCHOR)")
+        done < <(grep -E '^(#{1,6})[[:space:]]+' "$README" \
+                  | grep -vE '^\.\S+|附件')
 
-          TOC_LINES+=("- [$HEADER_TEXT](#$ANCHOR)")
-        done < <(grep -E '^(#{1,6})\s' "$README_FILE" | grep -vE '^\.\S+|附件')
+        # 分割文件
+        BEFORE=$(sed -n "/$PLACEHOLDER/ q; p" "$README")
+        AFTER=$(sed -n "/$PLACEHOLDER/,\$p" "$README" | tail -n +2)
 
-        # Split original content
-        CONTENT_BEFORE_TOC="$(sed -n '/<!-- TOC -->/q;p' "$README_FILE")"
-        CONTENT_AFTER_TOC="$(sed -n '/<!-- TOC -->/,$p' "$README_FILE" | tail -n +2)"
-
-        # Write back (no extra blank lines at EOF)
+        # 写回
         {
-          printf "%s\n" "$CONTENT_BEFORE_TOC"
-          for toc_line in "${TOC_LINES[@]}"; do
-            printf "%s\n" "$toc_line"
+          printf "%s\n" "$BEFORE"
+          for LINE in "${TOC_LINES[@]}"; do
+            printf "%s\n" "$LINE"
           done
-          # 注意：这里不强行再加一个空行，直接把 after 原样写回
-          printf "%s" "$CONTENT_AFTER_TOC"
-        } > "$README_FILE"
+          # 必须：EOF 只留一个换行
+          printf "%s" "$AFTER" | sed -e '$!b' -e '/^$/d'
+          printf "\n"
+        } > "$README"
 
-        # Collapse trailing newlines to exactly ONE newline at EOF (fix "+1 line" issue)
-        perl -0777 -i -pe 's/\n+\z/\n/' "$README_FILE"
-
-    - name: Commit changes to README.md (only if changed)
+    - name: Commit changes if needed
       shell: bash
       run: |
         set -euo pipefail
         if git diff --quiet -- README.md; then
-          echo "README.md unchanged, skip commit."
+          echo "No changes, skipping commit."
           exit 0
         fi
         git config user.name "GitHub Actions"
