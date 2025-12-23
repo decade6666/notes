@@ -9,6 +9,7 @@ on:
     paths:
       - '**/*.md'
       - README.md
+  workflow_dispatch:  # 添加此行来支持手动触发
 
 jobs:
   generate-toc:
