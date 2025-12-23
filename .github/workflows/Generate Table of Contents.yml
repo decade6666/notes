@@ -1,9 +1,9 @@
 name: Generate Table of Contents
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:        # 手动运行
   schedule:
-    - cron: '0 21 * * *'  # UTC 21:00 = UTC+8 05:00
+    - cron: '0 21 * * *'    # UTC 21:00 = UTC+8 05:00
 
 jobs:
   generate-toc:
@@ -11,7 +11,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v2
 
     - name: Build TOC and update README.md
       shell: bash
@@ -23,7 +23,7 @@ jobs:
 
         # Add placeholder if missing
         if ! grep -q "$PLACEHOLDER" "$README"; then
-          printf "%s\n" "$PLACEHOLDER" >> "$README"
+          echo "$PLACEHOLDER" >> "$README"
         fi
 
         # Build TOC lines
@@ -34,7 +34,7 @@ jobs:
             | tr '[:upper:]' '[:lower:]' \
             | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')"
           TOC+=("- [$TEXT](#$ANCHOR)")
-        done < <(grep -E '^(#{1,6})[[:space:]]+' "$README" | grep -vE '^\.\S+|附件')
+        done < <(grep -E '^(#{1,6})\s' "$README" | grep -vE '^\.\S+|附件')
 
         # Split README sections
         BEFORE="$(sed -n "/$PLACEHOLDER/ q; p" "$README")"
@@ -46,11 +46,12 @@ jobs:
           for line in "${TOC[@]}"; do
             printf "%s\n" "$line"
           done
+          # Ensures no extra blank lines are added at EOF
           printf "%s" "$AFTER" \
             | sed -e ':a; /.*\n$/!{N; b a}' -e 's/\n\+\z/\n/'
         } > "$README"
 
-    - name: Commit changes if any
+    - name: Commit changes if needed
       run: |
         set -euo pipefail
         if git diff --quiet -- README.md; then
