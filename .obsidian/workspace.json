@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "EDC(Electronic Data Capture System)/CIMS/页面事件/setSystemSubjectValue_Subject_Note（第二种关联方式）.md",
+                "file": "EDC(Electronic Data Capture System)/CIMS/页面事件/SubjStuUP.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "setSystemSubjectValue_Subject_Note（第二种关联方式）"
+              "title": "SubjStuUP"
             }
           }
         ]
@@ -118,7 +118,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "EDC(Electronic Data Capture System)/CIMS/页面事件/setSystemSubjectValue_Subject_Note（第二种关联方式）.md",
+                "file": "EDC(Electronic Data Capture System)/CIMS/页面事件/SubjStuUP.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -128,7 +128,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "setSystemSubjectValue_Subject_Note（第二种关联方式） 的反向链接列表"
+              "title": "SubjStuUP 的反向链接列表"
             }
           },
           {
@@ -137,12 +137,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "EDC(Electronic Data Capture System)/CIMS/页面事件/setSystemSubjectValue_Subject_Note（第二种关联方式）.md",
+                "file": "EDC(Electronic Data Capture System)/CIMS/页面事件/SubjStuUP.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "setSystemSubjectValue_Subject_Note（第二种关联方式） 的出链列表"
+              "title": "SubjStuUP 的出链列表"
             }
           },
           {
@@ -166,13 +166,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "EDC(Electronic Data Capture System)/CIMS/页面事件/setSystemSubjectValue_Subject_Note（第二种关联方式）.md",
+                "file": "EDC(Electronic Data Capture System)/CIMS/页面事件/SubjStuUP.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "setSystemSubjectValue_Subject_Note（第二种关联方式） 的大纲"
+              "title": "SubjStuUP 的大纲"
             }
           }
         ]
@@ -194,8 +194,9 @@
   },
   "active": "0927ca417dcb1db3",
   "lastOpenFiles": [
-    "EDC(Electronic Data Capture System)/CIMS/页面事件/setSystemSubjectValue_Subject_Note.md",
     "EDC(Electronic Data Capture System)/CIMS/页面事件/setSystemSubjectValue_Subject_Note（第二种关联方式）.md",
+    "EDC(Electronic Data Capture System)/CIMS/页面事件/SubjStuUP.md",
+    "EDC(Electronic Data Capture System)/CIMS/页面事件/setSystemSubjectValue_Subject_Note.md",
     "EDC(Electronic Data Capture System)/CIMS/页面事件/Disable_Form_30~700.md",
     "EDC(Electronic Data Capture System)/CIMS/页面事件/Deriva_GFR.md",
     "EDC(Electronic Data Capture System)/CIMS/页面事件/Deriva_CCR.md",
