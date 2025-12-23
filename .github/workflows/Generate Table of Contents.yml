@@ -1,0 +1,63 @@
+name: Generate Table of Contents
+
+on:
+  push:
+    paths:
+      - '**/*.md'
+      - README.md
+  pull_request:
+    paths:
+      - '**/*.md'
+      - README.md
+
+jobs:
+  generate-toc:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Generate Table of Contents for README.md
+      run: |
+        #!/bin/bash
+
+        # Path to the README.md file
+        README_FILE="README.md"
+
+        # Exclude files and directories
+        EXCLUDE_DIRS="附件"
+
+        # Create the Table of Contents placeholder if not present
+        TOC_PLACEHOLDER="<!-- TOC -->"
+        if ! grep -q "$TOC_PLACEHOLDER" "$README_FILE"; then
+          echo "$TOC_PLACEHOLDER" >> "$README_FILE"
+        fi
+
+        # Generate the Table of Contents
+        TOC=$(grep -E '^(#{1,6})\s' "$README_FILE" | grep -vE '^\.\S+|附件' | while read -r line; do
+          # Get the header level and title
+          HEADER_LEVEL=$(echo "$line" | sed -E 's/^(#{1,6})\s.*/\1/' | wc -c)
+          HEADER_TEXT=$(echo "$line" | sed -E 's/^(#{1,6})\s(.*)/\2/')
+          # Remove special characters and spaces for the anchor
+          ANCHOR=$(echo "$HEADER_TEXT" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g')
+          # Generate TOC entry
+          echo "$(printf '%*s' $((HEADER_LEVEL - 1)) '')- [$HEADER_TEXT](#$ANCHOR)"
+        done)
+
+        # Extract the part before and after TOC placeholder
+        CONTENT_BEFORE_TOC=$(sed -n '/<!-- TOC -->/q;p' "$README_FILE")
+        CONTENT_AFTER_TOC=$(sed -n '/<!-- TOC -->/,$p' "$README_FILE" | tail -n +2)
+
+        # Replace the TOC placeholder with the generated TOC
+        NEW_CONTENT="$CONTENT_BEFORE_TOC\n$TOC\n$CONTENT_AFTER_TOC"
+
+        # Write the modified content back to README.md
+        echo "$NEW_CONTENT" > "$README_FILE"
+
+    - name: Commit changes to README.md
+      uses: EndBug/add-and-commit@v7
+      with:
+        author_name: "GitHub Actions"
+        author_email: "actions@github.com"
+        message: "Update Table of Contents in README.md"
