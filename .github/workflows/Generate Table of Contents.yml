@@ -32,10 +32,10 @@ jobs:
           # GitHub-ish anchor (basic)
           ANCHOR="$(printf "%s" "$HEADER_TEXT" \
             | tr '[:upper:]' '[:lower:]' \
-            | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')"
+            | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//g')"
 
           TOC_LINES+=("- [$HEADER_TEXT](#$ANCHOR)")
-        done < <(grep -E '^(#{1,6})[[:space:]]+' "$README_FILE" | grep -vE '^\.\S+|附件')
+        done < <(grep -E '^(#{1,6})\s' "$README_FILE" | grep -vE '^\.\S+|附件')
 
         # Split original content
         CONTENT_BEFORE_TOC="$(sed -n '/<!-- TOC -->/q;p' "$README_FILE")"
@@ -47,6 +47,7 @@ jobs:
           for toc_line in "${TOC_LINES[@]}"; do
             printf "%s\n" "$toc_line"
           done
+          # 注意：这里不强行再加一个空行，直接把 after 原样写回
           printf "%s" "$CONTENT_AFTER_TOC"
         } > "$README_FILE"
 
