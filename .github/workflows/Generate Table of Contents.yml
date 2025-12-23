@@ -1,68 +1,87 @@
 name: Generate Table of Contents
 
 on:
-  workflow_dispatch:        # 手动运行
-  schedule:
-    - cron: '0 21 * * *'    # UTC 21:00 = UTC+8 05:00
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'README.md' # 忽略对README本身的修改，防止死循环
+  workflow_dispatch:
 
 jobs:
-  generate-toc:
+  update-toc:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Build TOC and update README.md
-      shell: bash
-      run: |
-        set -euo pipefail
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
 
-        README="README.md"
-        PLACEHOLDER="<!-- TOC -->"
+      - name: Generate and Update TOC
+        run: |
+          python3 -c "
+          import os
+          import re
 
-        # Add placeholder if missing
-        if ! grep -q "$PLACEHOLDER" "$README"; then
-          echo "$PLACEHOLDER" >> "$README"
-        fi
+          def get_toc(path, level=0):
+              items = []
+              # 忽略隐藏目录和特定目录
+              exclude = {'.git', '.github', 'images', 'assets'}
+              
+              # 获取排序后的文件夹和文件
+              try:
+                  entries = sorted(os.listdir(path))
+              except:
+                  return ''
 
-        # Build TOC lines
-        TOC=()
-        while IFS= read -r H; do
-          TEXT="$(printf "%s" "$H" | sed -E 's/^(#{1,6})[[:space:]]+(.*)/\2/')"
-          ANCHOR="$(printf "%s" "$TEXT" \
-            | tr '[:upper:]' '[:lower:]' \
-            | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')"
-          TOC+=("- [$TEXT](#$ANCHOR)")
-        done < <(grep -E '^(#{1,6})\s' "$README" | grep -vE '^\.\S+|附件')
+              for entry in entries:
+                  if entry in exclude or entry.startswith('.'):
+                      continue
+                  
+                  full_path = os.path.join(path, entry)
+                  rel_path = os.path.relpath(full_path, '.')
+                  # 转换 Windows 路径分隔符
+                  url_path = rel_path.replace('\\', '/')
+                  
+                  if os.path.isdir(full_path):
+                      items.append('  ' * level + f'- [{entry}](./{url_path})')
+                      items.append(get_toc(full_path, level + 1))
+                  elif entry.endswith('.md') and entry.lower() != 'readme.md':
+                      name = entry[:-3]
+                      items.append('  ' * level + f'- [{name}](./{url_path})')
+              
+              return '\n'.join([i for i in items if i])
 
-        # Split README sections
-        BEFORE="$(sed -n "/$PLACEHOLDER/ q; p" "$README")"
-        AFTER="$(sed -n "/$PLACEHOLDER/,\$p" "$README" | tail -n +2)"
+          toc_content = get_toc('.')
+          
+          readme_path = 'README.md'
+          if os.path.exists(readme_path):
+              with open(readme_path, 'r', encoding='utf-8') as f:
+                  content = f.read()
+              
+              # 使用正则替换标记中间的内容
+              start_marker = '<!-- TOC_START -->'
+              end_marker = '<!-- TOC_END -->'
+              pattern = f'{start_marker}.*?{end_marker}'
+              replacement = f'{start_marker}\n\n{toc_content}\n\n{end_marker}'
+              
+              if re.search(pattern, content, re.DOTALL):
+                  new_content = re.sub(pattern, replacement, content, flags=re.DOTALL)
+                  with open(readme_path, 'w', encoding='utf-8') as f:
+                      f.write(new_content)
+                  print('TOC updated successfully.')
+              else:
+                  print('Error: Markers not found in README.md')
+                  exit(1)
+          "
 
-        # Rewrite file with exactly ONE trailing newline
-        {
-          printf "%s\n" "$BEFORE"
-          for line in "${TOC[@]}"; do
-            printf "%s\n" "$line"
-          done
-          # Ensures no extra blank lines are added at EOF
-          printf "%s" "$AFTER" \
-            | sed -e ':a; /.*\n$/!{N; b a}' -e 's/\n\+\z/\n/'
-        } > "$README"
-
-        # Remove any additional newlines at the end (ensures only ONE newline)
-        perl -0777 -i -pe 's/\n+\z/\n/' "$README"
-
-    - name: Commit changes if needed
-      run: |
-        set -euo pipefail
-        if git diff --quiet -- README.md; then
-          echo "No change"
-          exit 0
-        fi
-        git config user.name "GitHub Actions"
-        git config user.email "actions@github.com"
-        git add README.md
-        git commit -m "Update Table of Contents in README.md"
-        git push
+      - name: Commit and Push
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add README.md
+          git diff --quiet && git diff --staged --quiet || git commit -m "docs: update table of contents"
+          git push
